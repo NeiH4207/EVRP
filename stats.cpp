@@ -32,14 +32,13 @@ void open_stats(void){
 
   //initialize and open output files
   perf_filename = new char[CHAR_LEN];
-  sprintf(perf_filename, "stats.%s.txt",
-	 problem_instance);
-  for (int i = 0; i < (int) strlen(perf_filename); i++){
-    char c = perf_filename[i];
+  for (int i = 0; i < (int) strlen(problem_instance); i++){
+    char c = problem_instance[i];
     if(c == '/'){
-      perf_filename[i] = '.';
+      problem_instance[i] = '_';
     }
   }
+  sprintf(perf_filename, "output_files/stats.%s.txt", problem_instance);
   //for performance
   if ((log_performance = fopen(perf_filename,"a")) == NULL) { exit(2); }
   //initialize and open output files

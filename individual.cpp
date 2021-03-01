@@ -121,7 +121,7 @@ void Individual::opt_generate() {
         }
     }
     tours[this->num_of_tours++] = {first_customer_index, NUM_OF_CUSTOMERS - 1};
-    redistribute_customer();
+    // redistribute_customer();
 }
 
 bool Individual::check_full_capacity() {
@@ -462,13 +462,13 @@ bool Individual::complete_subgen(int l, int r, int &cnt){
             remaining_energy[i] = BATTERY_CAPACITY;
         }
     }
-    optimize_station(l, r);
+    // optimize_station(l, r);
     return true;
 }
 
 void Individual::complete_gen() {
 
-// insert depot
+    // insert depot
     int cnt = 0;
     gen_temp[0] = 0;
     for(int j = 0; j < this->num_of_tours; j++) {
@@ -478,8 +478,6 @@ void Individual::complete_gen() {
         }
         gen_temp[++cnt] = 0;
     }
-    // show();
-
     cnt = 0;
 
     // complete subtour from L . R
@@ -497,24 +495,16 @@ void Individual::complete_gen() {
     full_path[cnt++] = 0;
     if(not is_valid_solution(full_path, cnt)) {
         this->fitness = fitness_evaluation(full_path, cnt, false);
-        // if (this->fitness < get_current_best())
-        //     cout << this->fitness << "\n";
+        // cout << this->fitness << "\n";
         add_penalty();
     } else{
         this->fitness = fitness_evaluation(full_path, cnt, true);
-        // if(this->fitness == 0){
-        //     cout << "WARNING!\n";
-        // }
     }
 
     for (int i = 0; i < cnt; i++)
         solution[i] = full_path[i];
     
     this->steps = cnt;
-    if(this->steps == 0){
-        cout << "WARNING!\n";
-    }
-    // show();
 }
 
 void Individual::mutation(){

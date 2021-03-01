@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 np.random.seed(11)
 #!/usr/bin/python
-f = open('Data/file_2.txt', 'r')
+f = open('Data/file_3.txt', 'r')
 f_location = open('Data/location.txt', 'r')
 
 string = f.read()
@@ -56,7 +56,7 @@ def display(X2):
     #plt.ylabel('Tour length', color = 'black')
     #plt.show()
     plt.plot(loc[0][1], loc[0][2], 'ro', markersize = 7, alpha = .8)
-    plt.savefig('n459k26_graph.pdf',bbox_inches='tight')
+    plt.savefig('Data/n459k26_graph.pdf',bbox_inches='tight')
     #plt.axis('equal')
     #plt.plot(X[:, 0], X[:, 1])
     #plt.show()

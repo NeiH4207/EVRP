@@ -1,0 +1,7 @@
+*.run
+*.run.xml
+Data/
+output_files/
+.vscode/
+exe*
+run*

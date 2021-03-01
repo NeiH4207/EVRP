@@ -1,7 +1,8 @@
 #include <vector>
+#include <limits.h>
 #define CHAR_LEN 100
 #define MAX_NODE 1500
-#define MAX_NUM_FINDING_SAFE 100
+#define MAX_NUM_FINDING_SAFE 10
 
 const int NUM_OF_INDVS = 200;
 const double INF = 2e15;

@@ -5,6 +5,7 @@
 #include<string>
 #include<algorithm>
 #include<fstream>
+#include<math.h>
 #include <string>
 #include <assert.h>
 #include <limits.h>
@@ -17,14 +18,13 @@ using namespace std;
 const float new_indv_rate = 0.1;
 const float new_child_rate = 0.8;
 const float old_indv_rate = 0.1;
-int counter = 0;
 
-solution *best_sol;   //see heuristic.hpp for the solution structure
-extern double evals;
+solution *best_sol;
 
 struct HMAGS {
 
     Individual pop[3 * NUM_OF_INDVS];
+    double rank[NUM_OF_INDVS];
     
     void init(){
         for(int i = 0; i < NUM_OF_INDVS; i++) {
@@ -39,15 +39,41 @@ struct HMAGS {
         }
     }
 
+    void compute_rank(int n){
+        double sum = 0;
+        double fit_min = INF;
+        double fit_max = 0;
+        for(int i = 0; i < n; i++){
+            fit_min = min(fit_min, pop[i].get_fitness());
+            fit_max = max(fit_max, pop[i].get_fitness());
+        }
+        for(int i = 0; i < n; i++){
+            double temp_fit = pow((fit_max - pop[i].get_fitness()) / (fit_max - fit_min + 1e-10), 2);
+            sum += temp_fit;
+            rank[i] = temp_fit;
+        }
+        for(int i = 0; i < n; i++){
+            rank[i] /= sum;
+            if(i > 0)
+                rank[i] += rank[i - 1];
+        }
+    }
+
+    int choose_by_rank(double prob){
+        return (int) (upper_bound(rank, rank + NUM_OF_INDVS, prob) - rank);
+    }
+
     void Repopulation() {
-        // assert((int)pop.size() > 1);
-        for(int i = 0, p1, p2; i < 2 * NUM_OF_INDVS; i += 2) {
+        compute_rank(NUM_OF_INDVS);
+        for(int i = 0; i < 2 * NUM_OF_INDVS; i += 2) {
             // choose the two parents
-            p1 = rand()%(NUM_OF_INDVS);
-            p2 = rand()%(NUM_OF_INDVS);
+            double p1 = (double) rand() / (double) RAND_MAX;
+            double p2 = (double) rand() / (double) RAND_MAX;
+            int idx_1 = choose_by_rank(p1);
+            int idx_2 = choose_by_rank(p2);
             while(p1 == p2)
-                p2 = rand()%(NUM_OF_INDVS);
-            distribute_crossover(pop[p1], pop[p2], NUM_OF_INDVS + i);
+                p2 = (double) rand() / (double) RAND_MAX;
+            distribute_crossover(pop[idx_1], pop[idx_2], NUM_OF_INDVS + i);
         }
         int cnt = 0;
         for (int i = NUM_OF_INDVS; i < 3 * NUM_OF_INDVS; i++){
@@ -118,37 +144,24 @@ struct HMAGS {
 
     void Selection() {
 
-        // for(int i = 0; i < 30; i++){
-        //     cout << pop[i].get_fitness() << " ";
-        // }
-        // cout << "\n";
-
-        sort(pop, pop + NUM_OF_INDVS, [](Individual x, Individual y) {
+        sort(pop, pop + 3 * NUM_OF_INDVS, [](Individual x, Individual y) {
                 return x.get_fitness() < y.get_fitness();
         });
 
-        sort(pop + NUM_OF_INDVS, pop + 3 * NUM_OF_INDVS, [](Individual x, Individual y) {
-                return x.get_fitness() < y.get_fitness();
-        });
+        compute_rank(2 * NUM_OF_INDVS);
 
-        for (int i = NUM_OF_INDVS * old_indv_rate; i < NUM_OF_INDVS * (old_indv_rate + new_child_rate); i++){
-            pop[i].copy_order(pop[i + NUM_OF_INDVS]);
+        for (int i = 0; i < NUM_OF_INDVS; i++){
+            double prob = (double) rand() / (double) RAND_MAX;
+            int idx = choose_by_rank(prob);
+            pop[2 * NUM_OF_INDVS + i].copy_order(pop[idx]);
         }
-
-        for (int i = NUM_OF_INDVS * (old_indv_rate + new_child_rate); i < NUM_OF_INDVS; i++){
-            pop[i].init("optimal");
+        for (int i = 0; i < NUM_OF_INDVS; i++){
+            pop[i].copy_order(pop[NUM_OF_INDVS * 2 + i]);
         }
-
-        // for(int i = 0; i < 30; i++){
-        //     cout << pop[i].get_fitness() << " ";
-        // }
-        // cout << "\n";
-
-
+        
     }
 
     void Evolution() {
-        // cout << counter ++ << " " << best_sol->tour_length << "\n";
         Repopulation();
         Selection();
     }
