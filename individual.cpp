@@ -121,7 +121,7 @@ void Individual::opt_generate() {
         }
     }
     tours[this->num_of_tours++] = {first_customer_index, NUM_OF_CUSTOMERS - 1};
-    // redistribute_customer();
+    redistribute_customer();
 }
 
 bool Individual::check_full_capacity() {
@@ -136,6 +136,11 @@ bool Individual::check_full_capacity() {
             return false;
     }
     return true;
+}
+
+
+bool Individual::is_valid_solution() {
+    return is_valid_solution(solution, this->steps);
 }
 
 bool Individual::is_valid_solution(int *t, int size) {
@@ -210,6 +215,51 @@ void Individual::show(){
     }
     cout << "Fitness: " << this->fitness << "\n";
     std::cout << "-----------\n";
+}
+
+void Individual::set_tour_index() {
+    for(int j = 0, k; j < this->num_of_tours; j++) {
+        for(k = tours[j].left; k <= tours[j].right; k++) {
+            tour_index[order[k]] = j;
+        }
+    }
+}
+
+void Individual::local_search(){
+
+    static int l, r, x, y, i, j, u0, v0, u1, v1;
+    static double t1, t2;
+    static bool stop;
+    for(int id_tour = 0; id_tour < this->num_of_tours; id_tour++) {
+        l = tours[id_tour].left;
+        r = tours[id_tour].right;
+        while (true) {
+            stop = true;
+            for(i = l; i <= r; ++i) {
+                for(j = r; j > i; --j) {
+                    u0 = order[i], u1 = order[i - 1];
+                    v0 = order[j], v1 = order[j + 1];
+
+                    if(i - 1 < l)
+                        u1 = 0;
+                    if(j + 1 > r)
+                        v1 = 0;
+
+                    t1 = get_distance(u1, u0)+ get_distance(v0, v1);
+                    t2 = get_distance(u1, v0) + get_distance(u0, v1);
+
+                    if (t1 > t2) {
+                        for(x = i, y = j; x <= y; ++x, --y) {
+                            swap(order[x], order[y]);
+                        }
+                        stop = false;
+                    }
+
+                }
+            }
+            if (stop) break;
+        }
+    }
 }
 
 void Individual::redistribute_customer(){
@@ -462,7 +512,7 @@ bool Individual::complete_subgen(int l, int r, int &cnt){
             remaining_energy[i] = BATTERY_CAPACITY;
         }
     }
-    // optimize_station(l, r);
+    optimize_station(l, r);
     return true;
 }
 
@@ -559,89 +609,137 @@ void Individual::mutation(){
             }
         }
         if(near_customer != -1){
-            int t1 = tour_index[near_customer], t2 = tour_index[customer];
+            int near_customer_tour_index = tour_index[near_customer], customer_tour_index = tour_index[customer];
 
-            int index2 = -1;
-            for(int i = tours[t1].left; i <= tours[t1].right; i++){
+            int near_customer_index = -1;
+            for(int i = tours[near_customer_tour_index].left; i <= tours[near_customer_tour_index].right; i++){
                 if(order[i] == near_customer){
-                    index2 = i;
+                    near_customer_index = i;
                     break;
                 }
             }
 
-            // pick from t1 . t2
-            if(t2 < t1){
-                swap(order[index2], order[tours[t1].left]);
-                tours[t1].left++;
-                for(int i = t1 - 1; i > t2; i--){
+            // pick from near_customer_tour_index . customer_tour_index
+            if(customer_tour_index < near_customer_tour_index){
+                swap(order[near_customer_index], order[tours[near_customer_tour_index].left]);
+                tours[near_customer_tour_index].left++;
+                for(int i = near_customer_tour_index - 1; i > customer_tour_index; i--){
                     for(int j = tours[i].right; j >= tours[i].left; j--){
                         order[j + 1] = order[j];
                     }
                     tours[i].left++;
                     tours[i].right++;
                 }
-                tours[t2].right++;
-                order[tours[t2].right] = near_customer;
-                tour_index[near_customer] = t2;
+                tours[customer_tour_index].right++;
+                order[tours[customer_tour_index].right] = near_customer;
+                tour_index[near_customer] = customer_tour_index;
             } else{
-                swap(order[index2], order[tours[t1].right]);
-                tours[t1].right--;
-                for(int i = t1 + 1; i <= t2; i++){
+                swap(order[near_customer_index], order[tours[near_customer_tour_index].right]);
+                tours[near_customer_tour_index].right--;
+                for(int i = near_customer_tour_index + 1; i <= customer_tour_index; i++){
                     for(int j = tours[i].left; j <= tours[i].right; j++){
                         order[j - 1] = order[j];
                     }
                     tours[i].left--;
                     tours[i].right--;
                 }
-                tours[t2].right++;
-                order[tours[t2].right] = near_customer;
-                tour_index[near_customer] = t2;
+                tours[customer_tour_index].right++;
+                order[tours[customer_tour_index].right] = near_customer;
+                tour_index[near_customer] = customer_tour_index;
             }
         }
     }
 }
 
-void Individual::set_tour_index() {
-    for(int j = 0, k; j < this->num_of_tours; j++) {
-        for(k = tours[j].left; k <= tours[j].right; k++) {
-            tour_index[order[k]] = j;
+
+
+
+void Individual::greedy_1(){
+    set_tour_index();
+    int customer = rand() % (NUM_OF_CUSTOMERS) + 1;
+    static int near_customer;
+    near_customer = -1;
+
+    for(int x: nearest[customer]){
+        if(tour_index[x] != tour_index[customer]){
+            near_customer = x;
+            break;
         }
     }
+
+    if(near_customer != -1){
+
+        for(int i = tours[tour_index[customer]].left; i <= tours[tour_index[customer]].right; i++){
+            if(order[i] == customer){
+                order[i] = near_customer;
+                break;
+            }
+        }
+
+        for(int i = tours[tour_index[near_customer]].left; i <= tours[tour_index[near_customer]].right; i++){
+            if(order[i] == near_customer){
+                order[i] = customer;
+                break;
+            }
+        }
+
+        swap(tour_index[customer], tour_index[near_customer]);
+    }
 }
+void Individual::greedy_2(){
+    set_tour_index();
+    // choose randomly a index of order
+    int customer_index = rand() % (NUM_OF_CUSTOMERS);
+    int customer = order[customer_index];
+    double cost = get_capacity_of_tour(tour_index[customer]);
 
-void Individual::local_search(){
+    int near_customer = -1;
+    for(int x: nearest[customer]){
+        if(tour_index[x] != tour_index[customer] && cost + get_customer_demand(x) <= MAX_CAPACITY
+                && tours[tour_index[x]].right - tours[tour_index[x]].left > 1){
 
-    static int l, r, x, y, i, j, u0, v0, u1, v1;
-    static double t1, t2;
-    static bool stop;
-    for(int id_tour = 0; id_tour < this->num_of_tours; id_tour++) {
-        l = tours[id_tour].left;
-        r = tours[id_tour].right;
-        while (true) {
-            stop = true;
-            for(i = l; i <= r; ++i) {
-                for(j = r; j > i; --j) {
-                    u0 = order[i], u1 = order[i - 1];
-                    v0 = order[j], v1 = order[j + 1];
+            near_customer = x;
+            break;
+        }
+    }
+    if(near_customer != -1){
+        int near_customer_tour_index = tour_index[near_customer], customer_tour_index = tour_index[customer];
 
-                    if(i - 1 < l)
-                        u1 = 0;
-                    if(j + 1 > r)
-                        v1 = 0;
+        int near_customer_index = -1;
+        for(int i = tours[near_customer_tour_index].left; i <= tours[near_customer_tour_index].right; i++){
+            if(order[i] == near_customer){
+                near_customer_index = i;
+                break;
+            }
+        }
 
-                    t1 = get_distance(u1, u0)+ get_distance(v0, v1);
-                    t2 = get_distance(u1, v0) + get_distance(u0, v1);
-
-                    if (t1 > t2) {
-                        for(x = i, y = j; x <= y; ++x, --y) {
-                            swap(order[x], order[y]);
-                        }
-                        stop = false;
-                    }
-
+        // pick from near_customer_tour_index to customer_tour_index
+        if(customer_tour_index < near_customer_tour_index){
+            swap(order[near_customer_index], order[tours[near_customer_tour_index].left]);
+            tours[near_customer_tour_index].left++;
+            for(int i = near_customer_tour_index - 1; i > customer_tour_index; i--){
+                for(int j = tours[i].right; j >= tours[i].left; j--){
+                    order[j + 1] = order[j];
                 }
+                tours[i].left++;
+                tours[i].right++;
             }
-            if (stop) break;
+            tours[customer_tour_index].right++;
+            order[tours[customer_tour_index].right] = near_customer;
+            tour_index[near_customer] = customer_tour_index;
+        } else{
+            swap(order[near_customer_index], order[tours[near_customer_tour_index].right]);
+            tours[near_customer_tour_index].right--;
+            for(int i = near_customer_tour_index + 1; i <= customer_tour_index; i++){
+                for(int j = tours[i].left; j <= tours[i].right; j++){
+                    order[j - 1] = order[j];
+                }
+                tours[i].left--;
+                tours[i].right--;
+            }
+            tours[customer_tour_index].right++;
+            order[tours[customer_tour_index].right] = near_customer;
+            tour_index[near_customer] = customer_tour_index;
         }
     }
 }

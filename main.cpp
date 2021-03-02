@@ -2,10 +2,8 @@
 #include<stdlib.h>
 #include<limits.h>
 #include <fstream>
-
-#include "EVRP.hpp"
-#include "HMAGS.hpp"
 #include "stats.hpp"
+#include "SA.hpp"
 
 using namespace std;
 
@@ -84,15 +82,18 @@ int main(int argc, char *argv[]) {
       /*Step 3*/
       start_run(run);
       //Initialize your heuristic here
-      initialize_HMAGS();
+      // initialize_HMAGS();
+      initialize_SA();
+        run_SA();  // simulated anneling
 
       /*Step 4*/
-      while(!termination_condition()){
-        //Execute your heuristic
-        run_HMAGS();  //heuristic.h
-      }
+    // while(!termination_condition()){
+    //   //Execute your heuristic
+    //   // run_HMAGS();  //heuristic.h
+    // }
       save_solution(run);
-      free_HMAGS();
+      // free_HMAGS();
+      free_SA();
      /*Step 5*/
       end_run(run);  //store the best solution quality for each run
   }

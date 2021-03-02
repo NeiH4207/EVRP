@@ -33,6 +33,8 @@ std::vector<short int> nearest[MAX_NODE];
 
 double evals;
 double current_best;
+solution *best_sol;
+
 
 void compute_nearest_points() {
     for(int i = 1; i <= NUM_OF_CUSTOMERS; i++) {

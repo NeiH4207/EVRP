@@ -1,20 +1,58 @@
+#include<vector>
+#include<queue>
+#include<string>
+#include<algorithm>
+#include<fstream>
+#include<math.h>
+#include <string>
+#include <assert.h>
+#include <limits.h>
+#include "individual.hpp"
 
-struct solution{
-  int *tour;	//this is what the fitness_evaluation function in EVRP.hpp will evaluate
-  int id;
-  double tour_length; //quality of the solution
-  int steps; //size of the solution
-  //the format of the solution is as follows:
-  //*tour:  0 - 5 - 6 - 8 - 0 - 1 - 2 - 3 - 4 - 0 - 7 - 0
-  //*steps: 12
-  //this solution consists of three routes:
-  //Route 1: 0 - 5 - 6 - 8 - 0
-  //Route 2: 0 - 1 - 2 - 3 - 4 - 0
-  //Route 3: 0 - 7 - 0
-};
+using namespace std;
 
-extern solution *best_sol;
+const int NUM_OF_INDVS = 200;
 
-void initialize_HMAGS();
-void free_HMAGS();
-void run_HMAGS();
+struct HMAGS {
+  
+    /* The population */
+    Individual pop[3 * NUM_OF_INDVS];
+
+    /* Ranking for each indv */
+    double rank[NUM_OF_INDVS];
+
+    /* initial function generate new population */
+    void init();
+
+    /* compute rank for pop */
+    void compute_rank(int n);
+
+    /* choose next indv with probability(prob) 
+       using binary search
+    */
+    int choose_by_rank(double prob);
+  
+    /* repopulation */
+    void Repopulation();
+
+    /* crossover function, return two new indvs */
+    void distribute_crossover(Individual parent_1, 
+                              Individual parent_2, 
+                              int idx);
+  
+    /* weheel selection method, using by ranking */
+    void Selection();
+  
+    /* evolution */
+    void Evolution();
+
+} ;
+
+extern HMAGS hmags;
+
+extern void initialize_HMAGS();
+
+extern void free_HMAGS();
+
+/*implement your heuristic in this function*/
+extern void run_HMAGS();

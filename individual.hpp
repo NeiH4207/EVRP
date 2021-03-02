@@ -18,16 +18,16 @@ public:
     /*  The positions of the tours
         decoding order to tour (1,3) : 1 3 5  (4,5) 7 8    (6,6) 9 
     */
-    segment tours[NUM_OF_INDVS]; 
+    segment tours[MAX_NODE]; 
 
     /* Mapping customer and a tour */
-    int tour_index[NUM_OF_INDVS];// 1 3 5 7 8 9 order
+    int tour_index[MAX_NODE];// 1 3 5 7 8 9 order
 
     /* Mapping customer and a tour */
-    int index_of_customer[NUM_OF_INDVS];// 1 3 5 7 8 9 order
+    int index_of_customer[MAX_NODE];// 1 3 5 7 8 9 order
 
     /* The order of customers */
-    int order[NUM_OF_INDVS];// 1 3 5 7 8 9 order
+    int order[MAX_NODE];// 1 3 5 7 8 9 order
 
     int solution[MAX_NODE];
 
@@ -35,14 +35,18 @@ public:
 
     /* Generate an individual */
     void setup();
+    /* generate random initial indv*/
     void rand_generate();
+    /* generate optimal initial indv*/
     void opt_generate();
+    /* copy a other: order, tours and fitness*/
     void copy_order(Individual);
     /* Checking valid order of individual*/
     bool is_valid_order();
     
     /* Checking valid solution*/
-    bool is_valid_solution(int *t, int size);
+    bool is_valid_solution(int *t, int size); 
+    bool is_valid_solution(); // this
     
     /* Checking fully capacity, return True if invalid */
     bool check_full_capacity();
@@ -56,44 +60,62 @@ public:
     /* Reoptimize */
     void local_search();
 
+    /* Seting index for each chromosome */
     void set_tour_index();
 
+    /* Insert energy station by optimal way */
     void complete_gen();
 
+    /* Insert energy station by optimal way for each tours */
     bool complete_subgen(int l, int r, int &cnt);
 
+    /* mutation method for GA */
     void mutation();
 
+    /* greedy method for SA */
+    void greedy_1();
+    void greedy_2();
+
+    /* balanced method */
     void redistribute_customer();
 
+    /* implement algo */
     void setting_path();
     
+    /* optimize_station - a sub steps in complete_gen function */
     void optimize_station(int l, int r);
 
+    /* find a nearest energy station by Dijkstra's alg from left to right */
     int nearest_station(int from, int to, double energy);
 
+    /* find a nearest energy station by Dijkstra's alg from right to left */
     int nearest_station_back(int from, int to, double energy);
 
     /* Shows order */
     void show();
 
+    /* return fitness */
     double get_fitness(){
         return this->fitness;
     }
 
+    /* add penalty for false indv */
     void add_penalty(){
         this->fitness *= this-> PENALTY;
     }
 
+    /* return the number of steps in all tours */
     int get_steps(){
         return this->steps;
     }
 
+    /* return the number of tours */
     int get_num_of_tours(){
         return this->num_of_tours;
     }
 
 private:
+    /* the number of steps in all tours */
     int steps = 0;
 
     /* The fitness of individuals */
