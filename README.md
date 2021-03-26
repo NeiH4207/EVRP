@@ -21,9 +21,9 @@ NOTE: You could place the input files in the same position with source code file
 Step 1: Access to the path which containing the source code files with command line(CMD). 
 Here are the commands necessary to run our c++ code in CMD.
 
-Step 2: Type in CMD: g++ -Wall -std=c++14 EVRP.cpp stats.cpp heuristic.cpp main.cpp -o runfile
-(To create an executable file named "runfile.exe")
+Step 2: Type in CMD: g++ -Wall -std=c++14 EVRP.cpp stats.cpp HMAGS.cpp utils.cpp main.cpp -o file_name
+(To create an executable file named "file_name")
 
-Step 3: Type in CMD to compile: runfile <input filename> 
-Examples: runfile E-n22-k4.evrp
+Step 3: Type in CMD to compile: file_name <input instance name> 
+Examples: file_name E-n22-k4.evrp
 (to excute source code in E-n22-k4 instance of EVRP benchmark)
