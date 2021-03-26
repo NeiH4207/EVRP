@@ -1,5 +1,6 @@
 #include <vector>
 #include <limits.h>
+#include <string>
 #define CHAR_LEN 100
 #define MAX_NODE 1500
 #define MAX_NUM_FINDING_SAFE 10
@@ -18,6 +19,10 @@ struct node {
   double y;
 };
 
+
+extern void save_solution(int run);
+
+extern void save_conv(std::vector<double> conv, std::string name);
 
 struct solution{
   int *tour;	//this is what the fitness_evaluation function in EVRP.hpp will evaluate

@@ -382,6 +382,10 @@ double get_evals(){
 
 }
 
+extern void save_solution(int run);
+
+extern void save_conv(vector<double> conv);
+
 /****************************************************************/
 /* Reset the evaluation counter for a new indepedent run        */
 /****************************************************************/
@@ -410,4 +414,43 @@ void free_EVRP(){
 
   delete[] distances;
 
+}
+
+void save_solution(int run){
+    ofstream outfile2;
+    string file_name = "Data/file_" + to_string(run) +".txt";
+    outfile2.open(file_name);
+    outfile2 << best_sol->steps << "\n";
+    for(int i = 0; i < best_sol->steps; i++) {
+        outfile2 << node_list[best_sol->tour[i]].x  << " " << node_list[best_sol->tour[i]].y << " ";
+    }
+    outfile2.close();
+
+    ofstream outfile;
+    outfile.open("Data/location.txt");
+    for(int i = 0; i < ACTUAL_PROBLEM_SIZE; i++) {
+        if(i == 0) {
+            outfile << "0 ";
+        } else {
+            if(i < problem_size) {
+                outfile << "1 ";
+            } else {
+                outfile << "2 ";
+            }
+        }
+
+        outfile << node_list[i].x  << " " << node_list[i].y << " ";
+    }
+    outfile.close();
+
+}
+
+void save_conv(vector<double> conv, string name = "conv_file"){
+    ofstream outfile2;
+    string file_name = "Data/" + name + ".txt";
+    outfile2.open(file_name);
+    for(double value: conv) {
+        outfile2 << value << "\n";
+    }
+    outfile2.close();
 }

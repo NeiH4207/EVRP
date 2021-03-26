@@ -133,6 +133,7 @@ void HMAGS::Selection() {
         int idx = choose_by_rank(prob);
         pop[2 * NUM_OF_INDVS + i].copy_order(pop[idx]);
     }
+    
     for (int i = 0; i < NUM_OF_INDVS; i++){
         pop[i].copy_order(pop[NUM_OF_INDVS * 2 + i]);
     }

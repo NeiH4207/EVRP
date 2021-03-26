@@ -114,6 +114,8 @@ public:
         return this->num_of_tours;
     }
 
+    int TYPE = 1;
+
 private:
     /* the number of steps in all tours */
     int steps = 0;

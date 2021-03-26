@@ -4,10 +4,6 @@
 
 using namespace std;
 
-const int BIGM = 9999999;
-const int NUMOPT = 2;
-const int NUMVI = 3;
-
 Simulated_Annealing sa;
 
 void Simulated_Annealing::run(int maxtime_sec) {
@@ -18,7 +14,7 @@ void Simulated_Annealing::run(int maxtime_sec) {
     double t_current = this->t_current;
     double t_cool = this->t_cool;
     double t_greedy = this->t_greedy;
-    // double alpha = this->alpha;
+    double alpha = this->alpha;
     double beta = this->beta;
 
     double improve;
@@ -28,16 +24,15 @@ void Simulated_Annealing::run(int maxtime_sec) {
     
     int G = 0;
     
-    double sqrt_n = pow(ACTUAL_PROBLEM_SIZE, 0.5);
+    double sqrt_n = log10(ACTUAL_PROBLEM_SIZE);
+    vector<double> conv;
 
     while (timer.getseconds() < maxtime_sec && get_evals() < TERMINATION && t_current > t_end){
         t_greedy = ACTUAL_PROBLEM_SIZE * beta;
-        double prob = (double)rand() / RAND_MAX;
+        // double prob = (double)rand() / RAND_MAX;
         t_cool = (alpha * sqrt_n - 1.0) / (alpha * sqrt_n);
-        if(prob < 0.001)
-            cout << get_evals() << " " << t_current << " " << "\n";
-        // double best_improve = -1 * BIGM;
         do {
+            conv.push_back(current_solution.get_fitness());
             new_solution.copy_order(current_solution);
             double rand_to_select_alg = (double) rand() / (double) RAND_MAX;
             
@@ -57,16 +52,16 @@ void Simulated_Annealing::run(int maxtime_sec) {
                 break;
 
 
-            if(not new_solution.is_valid_solution()) {
+            if(new_solution.get_fitness() + 1e10 > INF) {
                 continue;
             }
 
             /* Termination */
             if (G >= t_greedy) {
-                double upper = improve / abs(new_solution.get_fitness() - best_sol->tour_length);
-                double rho = exp(upper) * t_current;
+                double upper = improve / abs(new_solution.get_fitness() - best_sol->tour_length + 1e-5);
+                // double rho = exp(upper) * t_current;
                 double probability = (double)rand() / RAND_MAX;
-                if(probability < rho){
+                if(probability < t_current){
                     current_solution.copy_order(new_solution);
                 }
                 
@@ -86,14 +81,15 @@ void Simulated_Annealing::run(int maxtime_sec) {
                     for(int j = 0; j < best_sol->steps; j++){
                         best_sol->tour[j] = current_solution.solution[j];
                     }
-                    // current_solution.show();
                 }
-                t_current *= t_cool;
             } 
         }
+        t_current *= t_cool;
+        t_current = max(t_current, t_end);
 
         G = 0;
     }//end while
+    save_conv(conv, "conv_file_3");
 }
 
 void initialize_SA() {

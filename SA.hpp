@@ -15,11 +15,11 @@ private:
 /*
     arguments
 */
-    float alpha = 100;
+    float alpha = 50000;
     float beta = 0.333333;
     double t_current = 1.0;
     double t_cool = 0.9999;
-    double t_end = 0.0001;
+    double t_end = 0.02;
     double t_greedy = 100.0;
     double t_v_factor = 10.0;
     double optimal_fitness = INT_MAX;
