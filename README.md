@@ -4,8 +4,11 @@ Implementation of the electric vehicle routing problem.
 stats.cpp stats.hpp
 Implementation to store the best solution for the 20 RUNS. 
 
-heuristic.cpp heuristic.hpp
-my solver here.
+HMAGS.cpp
+Evolution Algorithm here.
+
+individual.cpp
+algorithm, methods
 
 main.cpp 
 Executable of the source code
