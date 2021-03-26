@@ -13,10 +13,6 @@ algorithm, methods
 main.cpp 
 Executable of the source code
 
-NOTE: We have just changed the heuristic.cpp file, other files is exactly the 
-same files provided at the address: https://mavrovouniotis.github.io/EVRPcompetition2020/
-so you can compile is the same way to compile the initial random heuristic algorithm
-
 /** Implementation Instructions **/ 
 
 NOTE: You could place the input files in the same position with source code files
