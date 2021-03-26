@@ -3,5 +3,6 @@
 Data/
 output_files/
 .vscode/
+visua*
 exe*
 run*
