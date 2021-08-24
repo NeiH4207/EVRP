@@ -83,7 +83,7 @@ public:
     void setting_path();
     
     /* optimize_station - a sub steps in complete_gen function */
-    void optimize_station(int l, int r);
+    void optimize_station(int *full_path, int l, int r);
 
     /* find a nearest energy station by Dijkstra's alg from left to right */
     int nearest_station(int from, int to, double energy);
@@ -98,6 +98,10 @@ public:
     double get_fitness(){
         return this->fitness;
     }
+    /* return fitness */
+    void set_fitness(double f){
+        this->fitness = f;
+    }
 
     /* add penalty for false indv */
     void add_penalty(){
@@ -109,9 +113,18 @@ public:
         return this->steps;
     }
 
+    /* return the number of steps in all tours */
+    void set_steps(int s){
+        this->steps = s;
+    }
+
     /* return the number of tours */
     int get_num_of_tours(){
         return this->num_of_tours;
+    }
+
+    void set_num_of_tours(int n){
+        this->num_of_tours = n;
     }
 
     int TYPE = 1;

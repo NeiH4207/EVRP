@@ -146,7 +146,7 @@ bool Individual::is_valid_solution() {
 }
 
 bool Individual::is_valid_solution(int *t, int size) {
-
+    // show();
     static int i, from, to;
     static double energy_temp, capacity_temp, distance_temp;
     energy_temp = BATTERY_CAPACITY;
@@ -159,11 +159,15 @@ bool Individual::is_valid_solution(int *t, int size) {
         energy_temp -= get_energy_consumption(from,to);
         distance_temp += get_distance(from,to);
         
-        if (capacity_temp < 0.0) 
+        if (capacity_temp < 0.0) {
+            cout << "Cappacity Warining\n";
             return false;
+        }
         
-        if (energy_temp < 0.0) 
+        if (energy_temp < 0.0) {
+            cout << "Energy Warining\\n";
             return false;
+        }
         
         if (to == DEPOT) 
             capacity_temp = MAX_CAPACITY;
@@ -202,11 +206,11 @@ double Individual::get_capacity_of_tour(int tour_id) {
 }
 
 void Individual::show(){
-    std::cout << "-----------\nOrder: \n";
-    for(int i = 0; i < NUM_OF_CUSTOMERS; i++){
-        std::cout << order[i] << " ";
-    }
-    cout << "\n";
+    // std::cout << "-----------\nOrder: \n";
+    // for(int i = 0; i < NUM_OF_CUSTOMERS; i++){
+    //     std::cout << order[i] << " ";
+    // }
+    // cout << "\n";
     cout << "Number of steps: " << this->steps << "\n";
     for(int i = 0; i < this->steps; i++){
         std::cout << solution[i] << " ";
@@ -366,7 +370,7 @@ int Individual::nearest_station_back(int from, int to, double energy) {
     return best_station;
 }
 
-void Individual::optimize_station(int l, int r){
+void Individual::optimize_station(int *full_path, int l, int r){
 
     static double energy;
     energy = BATTERY_CAPACITY;
@@ -520,7 +524,7 @@ bool Individual::complete_subgen(int l, int r, int &cnt){
         }
     }
     if (TYPE == 1)
-        optimize_station(l, r);
+        optimize_station(full_path, l, r);
     return true;
 }
 

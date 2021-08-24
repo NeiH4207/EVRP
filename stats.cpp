@@ -35,7 +35,7 @@ void open_stats(void){
   for (int i = 0; i < (int) strlen(problem_instance); i++){
     char c = problem_instance[i];
     if(c == '/'){
-      problem_instance[i] = '_';
+      problem_instance= &problem_instance[i + 1];
     }
   }
   sprintf(perf_filename, "output_files/stats.%s.txt", problem_instance);

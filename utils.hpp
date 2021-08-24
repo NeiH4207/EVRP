@@ -3,7 +3,8 @@
 #include<iostream>
 #include<limits.h>
 #include<stdlib.h>
-#include "HMAGS.hpp"
+// #include "HMAGS.hpp"
+#include "SACO.hpp"
 #include "stats.hpp"
 
 using namespace std;

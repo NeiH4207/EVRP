@@ -269,38 +269,41 @@ void print_solution(int *routes, int size) {
 /* Validates the routes of the solution. Taken as input         */
 /* an array of node indeces and its length                      */
 /****************************************************************/
-void check_solution(int *t, int size){
+bool check_solution(int *t, int size){
   int i, from, to;
   double energy_temp = BATTERY_CAPACITY;
   double capacity_temp = MAX_CAPACITY;
   double distance_temp = 0.0;
+  int visited[ACTUAL_PROBLEM_SIZE];
+  memset(visited, 0, sizeof visited);
 
   for(i = 0; i < size-1; i++){
     from = t[i];
     to = t[i+1];
+    visited[from] += 1;
     capacity_temp -= get_customer_demand(to);
     energy_temp -= get_energy_consumption(from,to);
     distance_temp += get_distance(from,to);
-    if(capacity_temp < 0.0) {
-      cout << "error: capacity below 0 at customer " << to <<  endl;
-      print_solution(t,size);
-      exit(1);
-    }
-    if(energy_temp < 0.0) {
-       cout << "error: energy below 0 from " << from << " to " << to <<  endl;
-       print_solution(t,size);
-       exit(1);
-    }
+    if(capacity_temp < 0.0 || energy_temp < 0.0) {
+      return false;
+    } 
     if(to == DEPOT) {
       capacity_temp = MAX_CAPACITY;
+      energy_temp = BATTERY_CAPACITY;
     }
-    if(is_charging_station(to)==true || to==DEPOT){
+    if(is_charging_station(to)){
       energy_temp = BATTERY_CAPACITY;
     }
   }
-  if(distance_temp != fitness_evaluation(t,size)) {
-    cout << "error: check fitness evaluation" << endl;
+  for (int i = 1; i <= NUM_OF_CUSTOMERS; i++){
+    if (visited[i] != 1){
+      return false;
+    }
   }
+  if(t[0] != 0 || t[size - 1] != 0){
+    return false;
+  }
+  return true;
 }
 
 

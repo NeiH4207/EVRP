@@ -26,7 +26,7 @@ void HMAGS::compute_rank(int n){
         fit_max = max(fit_max, pop[i].get_fitness());
     }
     for(int i = 0; i < n; i++){
-        double temp_fit = pow((fit_max - pop[i].get_fitness()) / (fit_max - fit_min + 1e-10), 2);
+        double temp_fit = pow((fit_max - pop[i].get_fitness()) / (fit_max - fit_min + 1e-6), 2);
         sum += temp_fit;
         rank[i] = temp_fit;
     }

@@ -19,7 +19,7 @@ struct HMAGS {
     Individual pop[3 * NUM_OF_INDVS];
 
     /* Ranking for each indv */
-    double rank[NUM_OF_INDVS];
+    double rank[3 * NUM_OF_INDVS];
 
     /* initial function generate new population */
     void init();
