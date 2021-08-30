@@ -1,4 +1,4 @@
-#define MAX_TRIALS 	20 									//DO NOT CHANGE THE NUMBER
+#define MAX_TRIALS 	10 									//DO NOT CHANGE THE NUMBER
 #define CHAR_LEN 100
 
 void open_stats(void);									//creates the output file

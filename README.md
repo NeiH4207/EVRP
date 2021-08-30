@@ -22,7 +22,9 @@ Here are the commands necessary to run our c++ code in CMD.
 
 Step 2: Run this command in CMD: g++ -Wall -std=c++14 EVRP.cpp stats.cpp HMAGS.cpp utils.cpp main.cpp -o file_name
 (To create an executable file named "file_name")
+g++ -Wall -std=c++14 EVRP.cpp stats.cpp individual.cpp SA.cpp Algorithms.cpp utils.cpp main.cpp -o main
 
 Step 3: Run this command in CMD: ./file_name <input instance name> 
 Examples: file_name E-n22-k4.evrp
 (to excute source code in E-n22-k4 instance of EVRP benchmark)
+./main benchmark/E-n22-k4.evrp 

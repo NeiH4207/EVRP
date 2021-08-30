@@ -16,10 +16,10 @@ void end_run(int r){
 }
 
 /*sets the termination conidition for your heuristic*/
-bool termination_condition(void) {
+bool termination_condition(double rate = 1.0) {
 
   bool flag;
-  if(get_evals() >= TERMINATION)
+  if(get_evals() >= rate * TERMINATION)
     flag = true;
   else
     flag = false;

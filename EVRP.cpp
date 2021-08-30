@@ -270,21 +270,31 @@ void print_solution(int *routes, int size) {
 /* an array of node indeces and its length                      */
 /****************************************************************/
 bool check_solution(int *t, int size){
+  // cout << "st\n";
   int i, from, to;
   double energy_temp = BATTERY_CAPACITY;
   double capacity_temp = MAX_CAPACITY;
   double distance_temp = 0.0;
-  int visited[ACTUAL_PROBLEM_SIZE];
-  memset(visited, 0, sizeof visited);
-
+  static int visited[MAX_NODE];
+  for (int i = 0; i <= NUM_OF_CUSTOMERS; i++)
+    visited[i] = 0;
+  // cout << "Solution: ";
+  // for(i = 0; i < size; i++){
+  //   cout << t[i] << " ";
+  // } cout << "\n";
   for(i = 0; i < size-1; i++){
     from = t[i];
     to = t[i+1];
-    visited[from] += 1;
+    if (from <= NUM_OF_CUSTOMERS) visited[from] += 1;
     capacity_temp -= get_customer_demand(to);
     energy_temp -= get_energy_consumption(from,to);
     distance_temp += get_distance(from,to);
-    if(capacity_temp < 0.0 || energy_temp < 0.0) {
+    if(capacity_temp < 0.0) {
+      // cout << "Capacity is exceeded! The capacity is " << capacity_temp << " at " << from << " to " << to << "\n";
+      return false;
+    } 
+    if(energy_temp < 0.0) {
+      // cout << "Energy is exceeded! The energy is " << energy_temp << " at " << from << " to " << to << "\n";
       return false;
     } 
     if(to == DEPOT) {
@@ -297,10 +307,16 @@ bool check_solution(int *t, int size){
   }
   for (int i = 1; i <= NUM_OF_CUSTOMERS; i++){
     if (visited[i] != 1){
+      // for (int j = 0; j < size; j++){
+      //   cout << t[j] << " ";
+      // }
+      // cout << size << ":\n";
+      // cout << "Not have the customer " << i << "!\n";
       return false;
     }
   }
   if(t[0] != 0 || t[size - 1] != 0){
+    // cout << "Warning false!\n";
     return false;
   }
   return true;
@@ -338,6 +354,9 @@ double get_energy_consumption(int from, int to) {
 /* points: from and to.                                         */
 /****************************************************************/
 int get_customer_demand(int customer){
+  if (customer == -1){
+    cout << "Warning customer invalid - 1!\n";
+  }
 
   return cust_demand[customer];
 
@@ -348,6 +367,9 @@ int get_customer_demand(int customer){
 /* and false otherwise                                          */
 /****************************************************************/
 bool is_charging_station(int node){
+  if (node == -1){
+    cout << "Warning node invalid - 1!\n";
+  }
 
   bool flag = false;
   if(charging_station[node] == true)

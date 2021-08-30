@@ -17,7 +17,7 @@ using namespace std;
 
 const double Pr_mutate = 0.1;
 int remaining_energy[MAX_NODE];
-short int gen_temp[MAX_NODE];
+int gen_temp[MAX_NODE];
 int full_path[MAX_NODE];
 short int _path[MAX_NODE];
 
@@ -70,10 +70,12 @@ void Individual::rand_generate(){
 void Individual::copy_order(Individual other){
     for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
         order[i] = other.order[i];
+        tour_index[i] = other.tour_index[i];
     }
     this->num_of_tours = other.get_num_of_tours();
     for (int i = 0; i < this->num_of_tours; i++){
-        tours[i] = other.tours[i];
+        tours[i].left = other.tours[i].left;
+        tours[i].right = other.tours[i].right;
     }
     this->fitness = other.get_fitness();
 
@@ -142,41 +144,7 @@ bool Individual::check_full_capacity() {
 
 
 bool Individual::is_valid_solution() {
-    return is_valid_solution(solution, this->steps);
-}
-
-bool Individual::is_valid_solution(int *t, int size) {
-    // show();
-    static int i, from, to;
-    static double energy_temp, capacity_temp, distance_temp;
-    energy_temp = BATTERY_CAPACITY;
-    capacity_temp = MAX_CAPACITY;
-    distance_temp = 0.0;
-    for (i = 0; i < size - 1; i++) {
-        from = t[i];
-        to = t[i + 1];
-        capacity_temp -= get_customer_demand(to);
-        energy_temp -= get_energy_consumption(from,to);
-        distance_temp += get_distance(from,to);
-        
-        if (capacity_temp < 0.0) {
-            cout << "Cappacity Warining\n";
-            return false;
-        }
-        
-        if (energy_temp < 0.0) {
-            cout << "Energy Warining\\n";
-            return false;
-        }
-        
-        if (to == DEPOT) 
-            capacity_temp = MAX_CAPACITY;
-        
-        if (is_charging_station(to) == true || to == DEPOT) 
-            energy_temp = BATTERY_CAPACITY;
-        
-    }
-    return true;
+    return check_solution(solution, this->steps);
 }
 
 bool Individual::is_valid_order() {
@@ -206,11 +174,11 @@ double Individual::get_capacity_of_tour(int tour_id) {
 }
 
 void Individual::show(){
-    // std::cout << "-----------\nOrder: \n";
-    // for(int i = 0; i < NUM_OF_CUSTOMERS; i++){
-    //     std::cout << order[i] << " ";
-    // }
-    // cout << "\n";
+    std::cout << "-----------\nOrder: \n";
+    for(int i = 0; i < NUM_OF_CUSTOMERS; i++){
+        std::cout << order[i] << " ";
+    }
+    cout << "\n";
     cout << "Number of steps: " << this->steps << "\n";
     for(int i = 0; i < this->steps; i++){
         std::cout << solution[i] << " ";
@@ -224,11 +192,19 @@ void Individual::show(){
 }
 
 void Individual::set_tour_index() {
+    // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
+    //     cout << order[i] << " ";
+    // } cout << "\n";
     for(int j = 0, k; j < this->num_of_tours; j++) {
+        // cout << j << " " << tours[j].left << " " << tours[j].right << "**** \n";
         for(k = tours[j].left; k <= tours[j].right; k++) {
             tour_index[order[k]] = j;
+            // cout << order[k] << " " << j << "\n";
         }
     }
+    // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
+    //     cout << tour_index[order[i]] << " ";
+    // }cout << "\n";
 }
 
 void Individual::local_search(){
@@ -448,7 +424,7 @@ void Individual::optimize_station(int *full_path, int l, int r){
 }
 
 // Complete a tour from l to r
-bool Individual::complete_subgen(int l, int r, int &cnt){
+bool Individual::complete_subgen(int* full_path, int* gen_temp, int l, int r, int &cnt){
     int have[MAX_NODE];
     int first_id = cnt;
     double energy = BATTERY_CAPACITY;
@@ -461,7 +437,6 @@ bool Individual::complete_subgen(int l, int r, int &cnt){
     remaining_energy[l] = BATTERY_CAPACITY;
 
     int num_finding_safe = 0;
-
     for(int j = l; j < r; j++) {
         from = gen_temp[j];
         to = gen_temp[j + 1];
@@ -511,14 +486,12 @@ bool Individual::complete_subgen(int l, int r, int &cnt){
             }
         }
     }
-    // optimal station
     l = first_id;
     r = cnt;
-
+    full_path[r] = 0;
     remaining_energy[l] = BATTERY_CAPACITY;
     for(int i = l + 1; i <= r; i++){
         remaining_energy[i] = remaining_energy[i - 1] - get_energy_consumption(full_path[i], full_path[i - 1]);
-
         if(is_charging_station(full_path[i])){
             remaining_energy[i] = BATTERY_CAPACITY;
         }
@@ -549,13 +522,13 @@ void Individual::complete_gen() {
         l = seg.left + i;
         r = seg.right + i + 2;
         //insert charging station
-        if(not complete_subgen(l, r, cnt)) {
+        if(not complete_subgen(full_path, gen_temp, l, r, cnt)) {
             this->fitness = INF;
             return;
         }
     }
     full_path[cnt++] = 0;
-    if(not is_valid_solution(full_path, cnt)) {
+    if(not check_solution(full_path, cnt)) {
         this->fitness = fitness_evaluation(full_path, cnt, false);
         // cout << this->fitness << "\n";
         add_penalty();
@@ -677,18 +650,27 @@ void Individual::mutation(){
 
 
 void Individual::greedy_1(){
+    // cout << "start1\n";
+    // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
+    //     cout << tour_index[order[i]] << " ";
+    // }cout << "\n";
     set_tour_index();
+    // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
+    //     cout << tour_index[order[i]] << " ";
+    // }cout << "\n";
     int customer = rand() % (NUM_OF_CUSTOMERS) + 1;
     static int near_customer;
     near_customer = -1;
 
     for(int x: nearest[customer]){
+        if ((rand() % INT_MAX) / (1.0 * INT_MAX) < 0.1) continue;
         if(tour_index[x] != tour_index[customer]){
             near_customer = x;
             break;
         }
     }
 
+        // cout << tour_index[customer] << " " << customer << " " << tour_index[near_customer] << " " << near_customer << "\n";
     if(near_customer != -1){
 
         for(int i = tours[tour_index[customer]].left; i <= tours[tour_index[customer]].right; i++){
@@ -704,11 +686,12 @@ void Individual::greedy_1(){
                 break;
             }
         }
-
         swap(tour_index[customer], tour_index[near_customer]);
     }
+    // set_tour_index();
 }
 void Individual::greedy_2(){
+    // cout << "start2\n";
     set_tour_index();
     // choose randomly a index of order
     int customer_index = rand() % (NUM_OF_CUSTOMERS);
@@ -719,11 +702,11 @@ void Individual::greedy_2(){
     for(int x: nearest[customer]){
         if(tour_index[x] != tour_index[customer] && cost + get_customer_demand(x) <= MAX_CAPACITY
                 && tours[tour_index[x]].right - tours[tour_index[x]].left > 1){
-
             near_customer = x;
             break;
         }
     }
+
     if(near_customer != -1){
         int near_customer_tour_index = tour_index[near_customer], customer_tour_index = tour_index[customer];
 
@@ -734,6 +717,8 @@ void Individual::greedy_2(){
                 break;
             }
         }
+
+        // cout << customer << " " << near_customer << "\n";
 
         // pick from near_customer_tour_index to customer_tour_index
         if(customer_tour_index < near_customer_tour_index){
@@ -752,15 +737,15 @@ void Individual::greedy_2(){
         } else{
             swap(order[near_customer_index], order[tours[near_customer_tour_index].right]);
             tours[near_customer_tour_index].right--;
-            for(int i = near_customer_tour_index + 1; i <= customer_tour_index; i++){
+            for(int i = near_customer_tour_index + 1; i < customer_tour_index; i++){
                 for(int j = tours[i].left; j <= tours[i].right; j++){
                     order[j - 1] = order[j];
                 }
                 tours[i].left--;
                 tours[i].right--;
             }
-            tours[customer_tour_index].right++;
-            order[tours[customer_tour_index].right] = near_customer;
+            tours[customer_tour_index].left--;
+            order[tours[customer_tour_index].left] = near_customer;
             tour_index[near_customer] = customer_tour_index;
         }
     }

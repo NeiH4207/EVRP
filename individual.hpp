@@ -67,7 +67,7 @@ public:
     void complete_gen();
 
     /* Insert energy station by optimal way for each tours */
-    bool complete_subgen(int l, int r, int &cnt);
+    bool complete_subgen(int* full_path, int * gen_temp, int l, int r, int &cnt);
 
     /* mutation method for GA */
     void mutation();
