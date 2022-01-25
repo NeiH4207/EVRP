@@ -6,3 +6,6 @@ output_files/
 visua*
 exe*
 run*
+build/*
+*/build/*
+*workspace*

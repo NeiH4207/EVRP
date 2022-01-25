@@ -74,6 +74,17 @@ private:
 
 };
 
+class GreedySearch {
+public:
+
+    Individual best_solution;
+    Individual cur_sol;
+    /* Implement algorithm */
+    void run(Individual &sol);
+
+    void init();
+
+};
 
 struct HMAGS {
   
@@ -127,3 +138,7 @@ extern void initialize_SA();
 extern void free_SA();
 
 // Other algorithms
+
+extern GreedySearch gs_optimizer;   
+extern void initialize_GS();
+extern void free_GS();

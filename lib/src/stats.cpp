@@ -40,7 +40,10 @@ void open_stats(void){
   }
   sprintf(perf_filename, "output_files/stats.%s.txt", problem_instance);
   //for performance
-  if ((log_performance = fopen(perf_filename,"a")) == NULL) { exit(2); }
+  if ((log_performance = fopen(perf_filename,"a")) == NULL) {
+    cout << "Error read file " << perf_filename << endl;
+    exit(2); 
+  }
   //initialize and open output files
 
 }

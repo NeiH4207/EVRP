@@ -1,4 +1,4 @@
-#include "HMAGS.hpp"
+#include "Algorithms.hpp"
 
 using namespace std;
 
