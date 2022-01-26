@@ -1,4 +1,5 @@
 #include<iostream>
+#include<string>
 #include "utils.hpp"         
 
 using namespace std;
@@ -7,45 +8,60 @@ int main(int argc, char *argv[]) {
 
   int run;
   /*Step 1*/
-  problem_instance = argv[1];       //pass the .evrp filename as an argument
+  algorithm = argv[1];
+  if (argv[2]){
+    problem_instance = argv[2]; 
+  } else {
+    cout << "Please specify a problem instance" << endl;
+    return 0;
+  }
+        //pass the .evrp filename as an argument
   read_problem(problem_instance);   //Read EVRP from file from EVRP.h
   /*Step 2*/
   // cout << problem_instance << "\n";
   open_stats();//open text files to store the best values from the 20 runs stats.h4
   // cout << "Running " << MAX_TRIALS << " times" << endl;
+  vector<double> conv;
   for(run = 1; run <= MAX_TRIALS; run++){
     /*Step 3*/
     start_run(run);
-    // SACO  *ANTS = new SACO (1, 2, 80, 0.1, 2, 0);
-    // //Initialize your heuristic here
-    // vector<double> conv;
-    // initialize_HMAGS();
-    // // initialize_SA();
-    // // run_SA();  // simulated anneling
-    initialize_GS();
-    gs_optimizer.run(gs_optimizer.best_solution);
-    /*Step 4*/
-    // while(!termination_condition(1)){
-    //   //Execute your heuristic
-    //   // run_HMAGS();  //heuristic.
-    //   ANTS->optimize();
-    //   // conv.push_back(best_sol->tour_length);
+    if (algorithm == "SACO"){
+      SACO  *ANTS = new SACO (1, 2, 80, 0.1, 2, 0);
+      while(!termination_condition(1)){
+        ANTS->optimize();
+        if (run == 1){
+          conv.push_back(best_sol->tour_length);
+        }
+      }
+      save_solution(run); 
+      ANTS->free_SACO();
+    } else if (algorithm == "GS"){
+      initialize_GS();
+      gs_optimizer.run(gs_optimizer.best_solution);
+      save_solution(run); 
+      free_GS();
+    } else if (algorithm == "HMAGS"){
+      initialize_HMAGS();
+      while(!termination_condition(1)){
+        run_HMAGS();  //heuristic.
+        if (run == 1){
+          conv.push_back(best_sol->tour_length);
+        }
+      }
+      save_solution(run); 
+      free_HMAGS();
+    } else if (algorithm == "SA"){
+      initialize_SA();
+      SA_optimizer.run(SA_optimizer.cur_sol);  //heuristic.
+      save_solution(run); 
+      free_SA();
+    } else{
+      cout << "Algorithm " << algorithm << " not found" << endl;
+    }
     // }
     // conv.push_back(best_sol->tour_length);
     // save_conv(conv, "conv_file_3");
-    save_solution(run);
-    // free_HMAGS();
-    // free_SA();
-    for (int i = 0; i < best_sol->steps; i++){
-      cout << best_sol->tour[i] << " ";
-    }
-    free_GS();
-    cout << "\n";
-    /*Step 5*/
-    // SA_optimizer.init(ANTS->Ants[0]);
-    // SA_optimizer.run(7200);
     end_run(run);  //store the best solution quality for each run
-    // ANTS->free_SACO();
   }
   /*Step 6*/
   close_stats(); //close text files to calculate the mean result from the 20 runs stats.h
