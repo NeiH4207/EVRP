@@ -33,6 +33,8 @@ Here are the commands necessary to run our c++ code in CMD.
 ```
 $ cmake .
 $ make
+$ mkdir output_files/
+$ mkdir Data/
 ```
 
 Step 2: Run this command in CMD: cmake .
