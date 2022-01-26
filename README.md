@@ -40,12 +40,12 @@ $ mkdir Data/
 Step 2: Run this command in CMD: cmake .
 (To create an executable file named "file_name")
 ```
-$ evrp benchmark/input_file
+$ ./evrp benchmark/input_file
 ```
 
 Examples:
 ```
-$ evrp benchmark/E-n101-k8.evrp
+$ ./evrp benchmark/E-n101-k8.evrp
 ```
 Note: The results store in Data/ folder
 
