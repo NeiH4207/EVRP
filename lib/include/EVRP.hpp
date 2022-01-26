@@ -19,6 +19,7 @@ struct node {
   double y;
 };
 
+extern std::string algorithm;
 
 extern void save_solution(int run);
 

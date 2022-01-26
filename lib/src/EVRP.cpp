@@ -34,7 +34,7 @@ std::vector<short int> nearest[MAX_NODE];
 double evals;
 double current_best;
 solution *best_sol;
-
+string algorithm;
 
 void compute_nearest_points() {
     for(int i = 1; i <= NUM_OF_CUSTOMERS; i++) {
@@ -472,7 +472,7 @@ void save_solution(int run){
 
 void save_conv(vector<double> conv, string name = "conv_file"){
     ofstream outfile2;
-    string file_name = "Data/" + name + ".txt";
+    string file_name = "Data/" + algorithm + '_' + name + ".txt";
     outfile2.open(file_name);
     for(double value: conv) {
         outfile2 << value << "\n";
