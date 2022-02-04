@@ -33,12 +33,12 @@ int main(int argc, char *argv[]) {
           conv.push_back(best_sol->tour_length);
         }
       }
-      save_solution(run); 
+      save_solution(algorithm, problem_instance, run); 
       ANTS->free_SACO();
     } else if (algorithm == "GS"){
       initialize_GS();
       gs_optimizer.run(gs_optimizer.best_solution);
-      save_solution(run); 
+      save_solution(algorithm, problem_instance, run); 
       free_GS();
     } else if (algorithm == "HMAGS"){
       initialize_HMAGS();
@@ -48,12 +48,12 @@ int main(int argc, char *argv[]) {
           conv.push_back(best_sol->tour_length);
         }
       }
-      save_solution(run); 
+      save_solution(algorithm, problem_instance, run); 
       free_HMAGS();
     } else if (algorithm == "SA"){
       initialize_SA();
       SA_optimizer.run(SA_optimizer.cur_sol);  //heuristic.
-      save_solution(run); 
+      save_solution(algorithm, problem_instance, run); 
       free_SA();
     } else{
       cout << "Algorithm " << algorithm << " not found" << endl;

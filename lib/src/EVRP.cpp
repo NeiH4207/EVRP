@@ -441,9 +441,10 @@ void free_EVRP(){
 
 }
 
-void save_solution(int run){
+void save_solution(string algorithm, string task, int run){
     ofstream outfile2;
-    string file_name = "Data/file_" + to_string(run) +".txt";
+    string file_name = "Data/location/" + algorithm + '_' +
+       task + '_' + to_string(run) +".txt";
     outfile2.open(file_name);
     outfile2 << best_sol->steps << "\n";
     for(int i = 0; i < best_sol->steps; i++) {
@@ -452,7 +453,9 @@ void save_solution(int run){
     outfile2.close();
 
     ofstream outfile;
-    outfile.open("Data/location.txt");
+    file_name = "Data/location/order_" + algorithm + '_' +
+       task + '_' + to_string(run) +".txt";
+    outfile.open(file_name);
     for(int i = 0; i < ACTUAL_PROBLEM_SIZE; i++) {
         if(i == 0) {
             outfile << "0 ";

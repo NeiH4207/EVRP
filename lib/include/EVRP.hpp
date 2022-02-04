@@ -21,7 +21,7 @@ struct node {
 
 extern std::string algorithm;
 
-extern void save_solution(int run);
+extern void save_solution(std::string algorithm, std::string task, int run);
 
 extern void save_conv(std::vector<double> conv, std::string name);
 
