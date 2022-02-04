@@ -3,8 +3,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 np.random.seed(11)
 #!/usr/bin/python
-f = open('Data/file_3.txt', 'r')
-f_location = open('Data/location.txt', 'r')
+file_path = 'Data/location/'
+file_name = 'GS_E-n101-k8.evrp_1'
+f = open(file_path + file_name + '.txt', 'r')
+f_location = open(file_path + 'order_' + file_name + '.txt', 'r')
 
 string = f.read()
 str = string.split()
@@ -46,7 +48,7 @@ def Location(X):
     #plt.plot(X[:, 0], X[:, 1])
     #plt.show()
 
-def display(X2):
+def display(X2, save_path='Data/images/', file_name='fig'):
     for i in range(num_of_node - 1):
         x1, y1, x2, y2 = X2[i][0], X2[i][1], X2[i + 1][0], X2[i + 1][1]
         plt.plot([x1, x2], [y1, y2], color = 'tomato', linewidth = 1)
@@ -56,11 +58,11 @@ def display(X2):
     #plt.ylabel('Tour length', color = 'black')
     #plt.show()
     plt.plot(loc[0][1], loc[0][2], 'ro', markersize = 7, alpha = .8)
-    plt.savefig('Data/n459k26_graph.pdf',bbox_inches='tight')
-    plt.savefig('Data/n459k26_graph.png',bbox_inches='tight')
+    plt.savefig(save_path + file_name + '.pdf',bbox_inches='tight')
+    plt.savefig(save_path + file_name + '.png',bbox_inches='tight')
     #plt.axis('equal')
     #plt.plot(X[:, 0], X[:, 1])
     #plt.show()
 
 Location(loc)
-display(X1)
+display(X1, file_name=file_name)
