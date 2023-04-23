@@ -30,17 +30,17 @@ Executable of the source code
 Step 1: Access to the path which containing the source code files with command line(CMD). 
 Here are the commands necessary to run our c++ code in CMD.
 
+
+Step 2: Run this command in CMD (To create an executable file named "file_name"): 
 ```
 $ cmake .
 $ make
 $ mkdir output_files/
 $ mkdir Data/
 ```
-
-Step 2: Run this command in CMD: cmake .
-(To create an executable file named "file_name")
+Step 3: Run HMAGS:
 ```
-$ ./evrp ALGORITHM benchmark/INPUT_FILE
+$ ./evrp HMAGS benchmark/INPUT_FILE
 ```
 
 Examples:
