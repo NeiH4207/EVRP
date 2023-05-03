@@ -8,6 +8,7 @@
 #include<fstream>
 #include<time.h>
 #include<limits.h>
+#include <sys/stat.h>
 
 #include "EVRP.hpp"
 #include "stats.hpp"
@@ -22,11 +23,11 @@ char *perf_filename;
 
 double* perf_of_trials;
 
-void open_stats(void){
+void open_stats(string algorithm, string outpath){
     //Initialize
     perf_of_trials = new double[MAX_TRIALS];
 
-    for(int i =0; i < MAX_TRIALS; i++){
+    for(int i = 0; i < MAX_TRIALS; i++){
         perf_of_trials[i] = 0.0;
     }
 
@@ -38,9 +39,11 @@ void open_stats(void){
       problem_instance= &problem_instance[i + 1];
     }
   }
-  sprintf(perf_filename, "output_files/stats.%s.txt", problem_instance);
+  // makedir ouput path if not exist
+  mkdir(outpath.c_str(), 0777);
+  sprintf(perf_filename, "%s/stats.%s_%s.txt", outpath.c_str(), algorithm.c_str(), problem_instance);
   //for performance
-  if ((log_performance = fopen(perf_filename,"a")) == NULL) {
+  if ((log_performance = fopen(perf_filename,"w")) == NULL) {
     cout << "Error read file " << perf_filename << endl;
     exit(2); 
   }

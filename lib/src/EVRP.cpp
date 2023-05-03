@@ -8,6 +8,7 @@
 #include<fstream>
 #include<time.h>
 #include<limits.h>
+#include <sys/stat.h>
 
 #include "EVRP.hpp"
 
@@ -441,35 +442,37 @@ void free_EVRP(){
 
 }
 
-void save_solution(string algorithm, string task, int run){
-    ofstream outfile2;
-    string file_name = "Data/location/" + algorithm + '_' +
-       task + '_' + to_string(run) +".txt";
-    outfile2.open(file_name);
-    outfile2 << best_sol->steps << "\n";
-    for(int i = 0; i < best_sol->steps; i++) {
-        outfile2 << node_list[best_sol->tour[i]].x  << " " << node_list[best_sol->tour[i]].y << " ";
-    }
-    outfile2.close();
-
-    ofstream outfile;
-    file_name = "Data/location/order_" + algorithm + '_' +
-       task + '_' + to_string(run) +".txt";
-    outfile.open(file_name);
+void save_solution(string output_dir, string algorithm, string task, int run){
+    ofstream solution_file;
+    output_dir = output_dir + '/' + to_string(run);
+    // make directory if not exist
+    mkdir(output_dir.c_str(), 0777);
+    string solution_file_name = output_dir + "/solution_" + algorithm + '_' +
+       task +".txt";
+    solution_file.open(solution_file_name);
+    solution_file << ACTUAL_PROBLEM_SIZE << "\n";
+    
     for(int i = 0; i < ACTUAL_PROBLEM_SIZE; i++) {
         if(i == 0) {
-            outfile << "0 ";
+            solution_file << "0 ";
         } else {
             if(i < problem_size) {
-                outfile << "1 ";
+                solution_file << "1 ";
             } else {
-                outfile << "2 ";
+                solution_file << "2 ";
             }
         }
 
-        outfile << node_list[i].x  << " " << node_list[i].y << " ";
+        solution_file << node_list[i].x  << " " << node_list[i].y << "\n";
     }
-    outfile.close();
+
+    solution_file << best_sol->steps << "\n";
+
+    for(int i = 0; i < best_sol->steps; i++) {
+        solution_file << node_list[best_sol->tour[i]].x  << " " << node_list[best_sol->tour[i]].y << "\n";
+    }
+    
+    solution_file.close();
 
 }
 

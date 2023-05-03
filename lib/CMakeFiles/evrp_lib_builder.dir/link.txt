@@ -1,0 +1,2 @@
+/usr/bin/ar qc libevrp_lib_builder.a CMakeFiles/evrp_lib_builder.dir/src/EVRP.cpp.o CMakeFiles/evrp_lib_builder.dir/src/stats.cpp.o CMakeFiles/evrp_lib_builder.dir/src/individual.cpp.o CMakeFiles/evrp_lib_builder.dir/src/HMAGS.cpp.o CMakeFiles/evrp_lib_builder.dir/src/SACO.cpp.o CMakeFiles/evrp_lib_builder.dir/src/GreedySearch.cpp.o CMakeFiles/evrp_lib_builder.dir/src/SA.cpp.o CMakeFiles/evrp_lib_builder.dir/src/utils.cpp.o
+/usr/bin/ranlib libevrp_lib_builder.a
