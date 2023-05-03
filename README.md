@@ -1,5 +1,7 @@
 # Electric Vehicle Routing Problem #
 
+*** Paper link [here](https://link.springer.com/article/10.1007/s10489-022-03555-8) ***
+
 ### This repository contains algorithms to solve the EVRP (Electric Vehicle Routing Problem) in C++ ###
 
 <a name="algorithms"></a>
