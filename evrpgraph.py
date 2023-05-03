@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 def argparser():
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', type=str, help='input file', 
+    parser.add_argument('-i', '--input', type=str, help='input file', 
                         default='output_files/1/solution_HMAGS_E-n23-k3.evrp.txt')
     parser.add_argument('--output', type=str, help='output file', default=None)
     args = parser.parse_args()
@@ -50,6 +50,7 @@ def plotgraph(nodes, ordered_nodes, output = None):
                 [ordered_nodes[-1][1], ordered_nodes[0][1]], color = 'tomato', linewidth = 1)
     if output is not None:
         plt.savefig(output)
+        print('Saved to {}'.format(output))
     else:
         plt.show()
     

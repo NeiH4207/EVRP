@@ -35,21 +35,23 @@ Step 2: Run this command in CMD (To create an executable file named "file_name")
 ```
 $ cmake .
 $ make
-$ mkdir output_files/
-$ mkdir Data/
-```
-Step 3: Run HMAGS:
-```
-$ ./evrp HMAGS benchmark/INPUT_FILE
 ```
 
-Examples:
+Step 3: Run this command in CMD (To run the executable file):
 ```
-$ ./evrp GS benchmark/E-n101-k8.evrp
+$ ./evrp <algorithm> <benchmark_file> <output_file>
 ```
-Note: The results store in Data/ folder
 
-To make a graph solution, run command:
+example:
 ```
-$ python3 evrpgraph.py Data/file_name
+$ ./evrp HMAGS benchmark/E-n23-k3.evrp output_files/
+```
+
+To make a solution in graph using python script:
+```
+$ python3 evrpgraph.py -i <solution-file>
+```
+
+```
+$ python3 evrpgraph.py -i output_files/1/solution_HMAGS_E-n23-k3.evrp.txt
 ```
