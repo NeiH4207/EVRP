@@ -55,3 +55,6 @@ $ python3 evrpgraph.py -i <solution-file>
 ```
 $ python3 evrpgraph.py -i output_files/1/solution_HMAGS_E-n23-k3.evrp.txt
 ```
+
+*** Example of solution in graph E-n23-k3.evrp using HMAGS algorithm
+![Solution]('tmp-outputs/1/solution_HMAGS_E-n23-k3evrp.png')
