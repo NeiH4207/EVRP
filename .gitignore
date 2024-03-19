@@ -5,7 +5,12 @@ CMakeFiles/*
 [Tt]esting/*
 
 # CMake
-*CMake*
+cmake*
+CMake*
+CPack*
+CTest*
+DartConfiguration.tcl
+Makefile
 
 ### VisualStudioCode ###
 .vscode/*
@@ -369,3 +374,4 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+evrp
