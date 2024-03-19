@@ -12,6 +12,9 @@ CTest*
 DartConfiguration.tcl
 Makefile
 
+# lib cmake
+lib/cmake*
+
 ### VisualStudioCode ###
 .vscode/*
 .vscode/settings.json
