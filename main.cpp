@@ -32,11 +32,13 @@ int main(int argc, char *argv[]) {
         }
         save_solution(outputpath, algo, filename, trial);
         ants->free_SACO();
+
       } else if (algo == "GS"){
         initialize_GS();
         gs_optimizer.run();
         save_solution(outputpath, algo, filename, trial);
         free_GS();
+
       } else if (algo == "HMAGS"){
         initialize_HMAGS();
         while(!termination_condition(1)){
@@ -44,11 +46,13 @@ int main(int argc, char *argv[]) {
         }
         save_solution(outputpath, algo, filename, trial);
         free_HMAGS();
+
       } else if (algo == "SA"){
         initialize_SA();
         SA_optimizer.run(SA_optimizer.cur_sol);  
         save_solution(outputpath, algo, filename, trial);
         free_SA();
+        
       } else{
         std::cerr << "Algorithm " << algo << " not found" << std::endl;
       }

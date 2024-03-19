@@ -13,7 +13,7 @@ void GreedySearch:: init(){
 
 void GreedySearch::run() {
     Individual sol;
-    sol.init("optimal");
+    sol.init("clustering");
     if(sol.is_valid_solution()) {
         if(best_sol->tour_length > sol.get_fitness()){
             best_sol->tour_length = sol.get_fitness();

@@ -24,14 +24,14 @@ short int _path[MAX_NODE];
 
 void Individual::init(string _type = "random"){
     this->num_of_tours = 0;
-    if (_type == "optimal")
+    if (_type == "clustering")
         opt_generate();
     else
         rand_generate();
     setup();
 }
 void Individual::setup(){
-    set_tour_index();
+    reset_tour_index();
     this->fitness = INF;
     local_search();
     complete_gen();
@@ -64,7 +64,7 @@ void Individual::rand_generate(){
             idx = i;
         }
     }
-    set_tour_index();
+    reset_tour_index();
 }
 
 void Individual::copy_order(Individual other){
@@ -82,25 +82,35 @@ void Individual::copy_order(Individual other){
 }
 
 // generate a new order
+/*
+ * This function generates a new order for a individual.
+ * The order is represented as an array of customers' index
+ * The array is 0-indexed, so the first customer is at index 0,
+ * and the last customer is at index NUM_OF_CUSTOMERS - 1.
+ */
 void Individual::opt_generate() {
     vector<int> have(NUM_OF_CUSTOMERS + 1, 0);
     for(int i = 0; i < NUM_OF_CUSTOMERS; i++) {
         order[i] = i + 1;
         index_of_customer[i + 1] = i;
     }
+    // shuffle the customers
     for(int i = 0; i < NUM_OF_CUSTOMERS; i++) {
         int idx_1, idx_2;
-        idx_1 = rand() % NUM_OF_CUSTOMERS;
-        idx_2 = rand() % NUM_OF_CUSTOMERS;
+        idx_1 = rand() % NUM_OF_CUSTOMERS; // random number from 0 to NUM_OF_CUSTOMERS - 1
+        idx_2 = rand() % NUM_OF_CUSTOMERS; // random number from 0 to NUM_OF_CUSTOMERS - 1
         swap(index_of_customer[order[idx_1]], index_of_customer[order[idx_2]]);
         swap(order[idx_1], order[idx_2]);
     }
+    // put the customers into tours
     int first_customer_index, capacity, idx;
     idx = 0;
     while(idx < NUM_OF_CUSTOMERS) {
         // rand()%N return random number from 0 to N-1
         first_customer_index = rand()%(NUM_OF_CUSTOMERS - idx) + idx;
+        // set the index of the first customer to its correct index
         index_of_customer[order[idx]] = first_customer_index;
+        // swap the first customer to its correct index
         swap(order[first_customer_index], order[idx]);
         first_customer_index = idx;
         int first_customer = order[idx];
@@ -108,6 +118,7 @@ void Individual::opt_generate() {
         capacity = get_customer_demand(first_customer);
         idx++;
 
+        // add nearest customers to the current tour
         for(int customer : nearest[first_customer]){
             if(have[customer]) continue;
             if(capacity + get_customer_demand(customer) <= MAX_CAPACITY) {
@@ -117,14 +128,16 @@ void Individual::opt_generate() {
                 swap(order[idx], order[index_of_customer[customer]]);
                 idx++;
             } else{
+                // the current tour is full, so create a new tour
                 tours[this->num_of_tours++] = {first_customer_index, idx - 1};
                 break;
             }
         }
     }
+    // the last tour
     tours[this->num_of_tours++] = {first_customer_index, NUM_OF_CUSTOMERS - 1};
     if (TYPE == 1){
-        redistribute_customer();
+        balancing_capacity();
     }
 }
 
@@ -191,7 +204,7 @@ void Individual::show(){
     std::cout << "-----------\n";
 }
 
-void Individual::set_tour_index() {
+void Individual::reset_tour_index() {
     // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
     //     cout << order[i] << " ";
     // } cout << "\n";
@@ -244,54 +257,59 @@ void Individual::local_search(){
     }
 }
 
-void Individual::redistribute_customer(){
-    set_tour_index();
-    int customer;
-    int have[NUM_OF_CUSTOMERS + 1];
+void Individual::balancing_capacity(){
+    reset_tour_index();
+    int last_tour_idx = this->num_of_tours - 1;
+    int is_customer_in_last_tour[NUM_OF_CUSTOMERS + 1];
+    int l = tours[last_tour_idx].left;
+    int r = tours[last_tour_idx].right;
+
     for (int i = 0; i <= NUM_OF_CUSTOMERS; i++){
-        have[i] = 0;
+        is_customer_in_last_tour[i] = 0;
     }
-    double cap1 = 0, cap2 = 0;
-    for(int i = tours[this->num_of_tours - 1].left; i <= tours[this->num_of_tours - 1].right; i++){
-        have[order[i]] = 1;
+    
+    for(int i = l; i <= r; i++){
+        is_customer_in_last_tour[order[i]] = 1;
     }
 
     // choose a customer in last tour
-    cap1 = get_capacity_of_tour(this->num_of_tours - 1);
-    int l = tours[this->num_of_tours - 1].left;
-    int r = tours[this->num_of_tours - 1].right;
-    customer = order[rand() % (r - l + 1) + l];
+    double last_tour_capacity = get_capacity_of_tour(last_tour_idx);
+    int random_customer_idx = rand() % (r - l + 1) + l;
+    int selected_customer = order[random_customer_idx];
 
-    for(int x: nearest[customer]){
-        if(have[x]) continue;
-        cap2 = get_capacity_of_tour(tour_index[x]);
+    for(int x: nearest[selected_customer]){
+        if(is_customer_in_last_tour[x]) continue;
+        double curr_tour_capacity = get_capacity_of_tour(tour_index[x]);
 
-        // Better ?
-        if(cap1 + get_customer_demand(x) <= MAX_CAPACITY
-            && abs(cap1 + get_customer_demand(x) - (cap2 - get_customer_demand(x))) < abs(cap1 - cap2)){
+        // The new delta is the difference between the last tour capacity and the current tour capacity
+        // Make sure that the new delta is smaller than the old delta (balancing capacity)
+        double new_delta = abs(last_tour_capacity + get_customer_demand(x) - (curr_tour_capacity - get_customer_demand(x)));
+        double delta = abs(last_tour_capacity - curr_tour_capacity);
 
-            // . convert
-            int t = -1;
-            for(int i = 0; i < this->num_of_tours - 1; i++){
-                for(int j = tours[i].left; j <= tours[i].right; j++){
-                    if(order[j] == x){
-                        swap(order[j], order[j + 1]);
-                        t = 0;
+        if(last_tour_capacity + get_customer_demand(x) <= MAX_CAPACITY && new_delta < delta){
+            // move x to last tour
+            int idx = -1;
+            for (int i = 0; i < last_tour_idx; ++i) {
+                for (int j = tours[i].left; j <= tours[i].right; ++j) {
+                    if (order[j] == x) {
+                        std::swap(order[j], order[j + 1]);
+                        idx = i;
+                        break;
                     }
                 }
-
-                if(t == 0){
-                    tours[i].right--;
-                    tours[i + 1].left--;
+                if (idx != -1) {
+                    --tours[idx].right;
+                    --tours[idx + 1].left;
+                    break;
                 }
             }
-            have[x] = 1;
-            cap1 += get_customer_demand(x);
+            is_customer_in_last_tour[x] = 1;
+            last_tour_capacity += get_customer_demand(x);
             assert(this->num_of_tours > 0);
-            tour_index[x] = this->num_of_tours - 1;
-            int l = tours[this->num_of_tours - 1].left;
-            int r = tours[this->num_of_tours - 1].right;
-            customer = order[rand() % (r - l + 1) + l];
+            tour_index[x] = last_tour_idx;
+            int l = tours[last_tour_idx].left;
+            int r = tours[last_tour_idx].right;
+            selected_customer = order[rand() % (r - l + 1) + l];
         } else{
             break;
         }
@@ -347,6 +365,23 @@ int Individual::nearest_station_back(int from, int to, double energy) {
 }
 
 void Individual::optimize_station(int *full_path, int l, int r){
+    /*
+    * Note at this function, number of continuous charging stations S and S' is 1. But it can be more than 1.
+    valid tour after inserting energy stations
+    : depot_L -> c6 -> c5 -> c4 -> c3 -> S(S1 -> S2) -> c2 -> c1 -> depot_R
+    Reverse tour
+    : depot_R -> c1 -> c2 -> S(S1 -> S2) -> c3 -> c4 -> c5 -> c6 -> depot_L
+    Replace S to other:
+    step 1. from depot_R, get a subtour that vehicle reach farest from depot_R but not visit any charging station
+        : depot_R -> c1 -> c2 -> c3 -> c4 - (not enough energy to reach c5) -> c5
+        : delta_L1 = (d(c2, s1) + d(s1, s2) + d(s2, c3) - d(c2, c3))
+    step 2: From c2->c3, c3->c4, c4->c5, find S' (>= 1 charging stations):
+        : delta_L2 = d(c3, S') + d(S', c3) - d(c2, c3)
+        : delta_L2 = d(c3, S') + d(S', c4) - d(c3, c4)
+        : delta_L2 = d(c4, S') + d(S', c5) - d(c4, c5)
+        if delta_L2 < delta_L1 then replace S with S'
+        # see the paper: https://doi.org/10.1007/s10489-022-03555-8 for more details
+    */
 
     static double energy;
     energy = BATTERY_CAPACITY;
@@ -542,122 +577,8 @@ void Individual::complete_gen() {
     this->steps = cnt;
 }
 
-void Individual::mutation(){
-    double mutate_prob_1 = (double) rand() / (double) RAND_MAX;
-    double mutate_prob_2 = (double) rand() / (double) RAND_MAX;
-    set_tour_index();
-    if(mutate_prob_1 < Pr_mutate){
-        int customer = rand() % (NUM_OF_CUSTOMERS) + 1;
-        static int near_customer;
-        near_customer = -1;
-
-        for(int x: nearest[customer]){
-            if(tour_index[x] != tour_index[customer]){
-                near_customer = x;
-                break;
-            }
-        }
-
-        if(near_customer != -1){
-
-            for(int i = tours[tour_index[customer]].left; i <= tours[tour_index[customer]].right; i++){
-                if(order[i] == customer){
-                    order[i] = near_customer;
-                    break;
-                }
-            }
-
-            for(int i = tours[tour_index[near_customer]].left; i <= tours[tour_index[near_customer]].right; i++){
-                if(order[i] == near_customer){
-                    order[i] = customer;
-                    break;
-                }
-            }
-
-            swap(tour_index[customer], tour_index[near_customer]);
-        }
-        return;
-    }
-
-    if(mutate_prob_2 < Pr_mutate){
-        // choose randomly a index of order
-        int customer_index = rand() % (NUM_OF_CUSTOMERS);
-        int customer = order[customer_index];
-        double cost = get_capacity_of_tour(tour_index[customer]);
-
-        int near_customer = -1;
-        for(int x: nearest[customer]){
-            if(tour_index[x] != tour_index[customer] && cost + get_customer_demand(x) <= MAX_CAPACITY
-                    && tours[tour_index[x]].right - tours[tour_index[x]].left > 1){
-
-                near_customer = x;
-                break;
-            }
-        }
-        if(near_customer != -1){
-            int near_customer_tour_index = tour_index[near_customer], customer_tour_index = tour_index[customer];
-
-            int near_customer_index = -1;
-            for(int i = tours[near_customer_tour_index].left; i <= tours[near_customer_tour_index].right; i++){
-                if(order[i] == near_customer){
-                    near_customer_index = i;
-                    break;
-                }
-            }
-
-            // pick from near_customer_tour_index . customer_tour_index
-            if(customer_tour_index < near_customer_tour_index){
-                swap(order[near_customer_index], order[tours[near_customer_tour_index].left]);
-                tours[near_customer_tour_index].left++;
-                for(int i = near_customer_tour_index - 1; i > customer_tour_index; i--){
-                    for(int j = tours[i].right; j >= tours[i].left; j--){
-                        order[j + 1] = order[j];
-                    }
-                    tours[i].left++;
-                    tours[i].right++;
-                }
-                tours[customer_tour_index].right++;
-                order[tours[customer_tour_index].right] = near_customer;
-                tour_index[near_customer] = customer_tour_index;
-            } else{
-                swap(order[near_customer_index], order[tours[near_customer_tour_index].right]);
-                tours[near_customer_tour_index].right--;
-                for(int i = near_customer_tour_index + 1; i <= customer_tour_index; i++){
-                    for(int j = tours[i].left; j <= tours[i].right; j++){
-                        order[j - 1] = order[j];
-                    }
-                    tours[i].left--;
-                    tours[i].right--;
-                }
-                tours[customer_tour_index].right++;
-                order[tours[customer_tour_index].right] = near_customer;
-                tour_index[near_customer] = customer_tour_index;
-            }
-        }
-        return;
-    }
-    // if(mutate_prob_3 < Pr_mutate){
-    //     int customer_index = rand() % (NUM_OF_CUSTOMERS);
-    //     int near_customer_index = rand() % (NUM_OF_CUSTOMERS);
-    //     int customer = order[customer_index];
-    //     int near_customer = order[near_customer_index];
-    //     swap(order[near_customer_index], order[customer_index]);
-    //     swap(tour_index[near_customer], tour_index[customer]);
-    // }
-}
-
-
-
-
 void Individual::greedy_1(){
-    // cout << "start1\n";
-    // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
-    //     cout << tour_index[order[i]] << " ";
-    // }cout << "\n";
-    set_tour_index();
-    // for (int i = 0; i < NUM_OF_CUSTOMERS; i++){
-    //     cout << tour_index[order[i]] << " ";
-    // }cout << "\n";
+    reset_tour_index();
     int customer = rand() % (NUM_OF_CUSTOMERS) + 1;
     static int near_customer;
     near_customer = -1;
@@ -670,7 +591,6 @@ void Individual::greedy_1(){
         }
     }
 
-        // cout << tour_index[customer] << " " << customer << " " << tour_index[near_customer] << " " << near_customer << "\n";
     if(near_customer != -1){
 
         for(int i = tours[tour_index[customer]].left; i <= tours[tour_index[customer]].right; i++){
@@ -688,11 +608,9 @@ void Individual::greedy_1(){
         }
         swap(tour_index[customer], tour_index[near_customer]);
     }
-    // set_tour_index();
 }
 void Individual::greedy_2(){
-    // cout << "start2\n";
-    set_tour_index();
+    reset_tour_index();
     // choose randomly a index of order
     int customer_index = rand() % (NUM_OF_CUSTOMERS);
     int customer = order[customer_index];
@@ -717,10 +635,7 @@ void Individual::greedy_2(){
                 break;
             }
         }
-
-        // cout << customer << " " << near_customer << "\n";
-
-        // pick from near_customer_tour_index to customer_tour_index
+        
         if(customer_tour_index < near_customer_tour_index){
             swap(order[near_customer_index], order[tours[near_customer_tour_index].left]);
             tours[near_customer_tour_index].left++;

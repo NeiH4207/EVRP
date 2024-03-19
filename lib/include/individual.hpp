@@ -61,7 +61,7 @@ public:
     void local_search();
 
     /* Seting index for each chromosome */
-    void set_tour_index();
+    void reset_tour_index();
 
     /* Insert energy station by optimal way */
     void complete_gen();
@@ -77,7 +77,7 @@ public:
     void greedy_2();
 
     /* balanced method */
-    void redistribute_customer();
+    void balancing_capacity();
 
     /* implement algo */
     void setting_path();

@@ -1,6 +1,6 @@
 # Electric Vehicle Routing Problem #
 
-*** Paper link [here](https://link.springer.com/article/10.1007/s10489-022-03555-8) ***
+*** Paper link [here](https://www.researchgate.net/profile/Cong-Dao-Tran/publication/360604653_A_greedy_search_based_evolutionary_algorithm_for_electric_vehicle_routing_problem/links/641d203a315dfb4ccea54309/A-greedy-search-based-evolutionary-algorithm-for-electric-vehicle-routing-problem.pdf) ***
 
 ### This repository contains algorithms to solve the EVRP (Electric Vehicle Routing Problem) in C++ ###
 

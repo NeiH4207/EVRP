@@ -360,7 +360,7 @@ void SACO::optimize () {
 			}
 		}	
 		Ants[k].set_num_of_tours(n_tours);
-		Ants[k].set_tour_index();
+		Ants[k].reset_tour_index();
         if (Ants[k].get_fitness() < best_sol->tour_length){
             best_sol->tour_length = Ants[k].get_fitness();
             best_sol->steps = Ants[k].get_steps();    

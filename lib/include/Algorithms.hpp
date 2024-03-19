@@ -6,6 +6,18 @@
 const int NUMBEROFANTS = 6;
 const int NUM_OF_INDVS = 200;
 
+class GreedySearch {
+public:
+
+    Individual best_solution;
+    Individual cur_sol;
+    /* Implement algorithm */
+    void run();
+
+    void init();
+
+};
+
 class SACO {
 public:
 	SACO (double alpha, double beta, double q, double ro, double taumax, int initCity);
@@ -74,18 +86,6 @@ private:
 
 };
 
-class GreedySearch {
-public:
-
-    Individual best_solution;
-    Individual cur_sol;
-    /* Implement algorithm */
-    void run();
-
-    void init();
-
-};
-
 struct HMAGS {
   
     /* The population */
@@ -107,6 +107,8 @@ struct HMAGS {
   
     /* repopulation */
     void Repopulation();
+
+    void mutate(Individual &indv, std::string method, double Pr_mutate);
 
     /* crossover function, return two new indvs */
     void distribute_crossover(Individual parent_1, 
