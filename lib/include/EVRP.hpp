@@ -9,7 +9,6 @@ const double INF = 2e15;
 #define TERMINATION 25000*ACTUAL_PROBLEM_SIZE  	//DO NOT CHANGE THE NUMBER
 
 extern double current_best;
-extern char* problem_instance;          //Name of the instance
 void init_evals();					    //initializes the evaluations
 void init_current_best();				//initializes the best solution quality
 
@@ -59,7 +58,7 @@ extern std::vector<short int> nearest[MAX_NODE];
 double fitness_evaluation(int *routes, int size, bool save);		//evaluates an EVRP solution
 void print_solution(int *routes, int size); 				//used to print the solution
 bool check_solution(int *routes, int size); 				//used to validate the solution
-void read_problem(char* filename);					//reads .evrp file
+void read_problem(const char* filename);					//reads .evrp file
 double get_energy_consumption(int from, int to);	//returns the energy consumption
 int get_customer_demand(int customer);				//returns the customer demand
 double get_distance(int from, int to);				//returns the distance

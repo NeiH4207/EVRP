@@ -23,13 +23,13 @@ char *perf_filename;
 
 double* perf_of_trials;
 
-void open_stats(string algorithm, string outpath){
-    //Initialize
-    perf_of_trials = new double[MAX_TRIALS];
+void open_stats(char* problem_instance, string algorithm, string outpath){
+  //Initialize
+  perf_of_trials = new double[MAX_TRIALS];
 
-    for(int i = 0; i < MAX_TRIALS; i++){
-        perf_of_trials[i] = 0.0;
-    }
+  for(int i = 0; i < MAX_TRIALS; i++){
+      perf_of_trials[i] = 0.0;
+  }
 
   //initialize and open output files
   perf_filename = new char[CHAR_LEN];

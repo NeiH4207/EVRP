@@ -14,7 +14,6 @@
 
 using namespace std;
 
-char* problem_instance;          //Name of the instance
 struct node *node_list;     //List of nodes with id and x and y coordinates
 int *cust_demand;                //List with id and customer demands
 bool* charging_station;
@@ -100,8 +99,8 @@ double ** generate_2D_matrix_double(int n, int m){
 /* Read the problem instance and generate the initial object    */
 /* vector.                                                      */
 /****************************************************************/
-void read_problem(char* filename){
-    int i;
+void read_problem(const char* filename){
+  int i;
   char line[CHAR_LEN];
   char * keywords;
   char Delimiters[] = " :=\n\t\r\f\v";
