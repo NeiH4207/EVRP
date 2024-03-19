@@ -80,7 +80,7 @@ public:
     Individual best_solution;
     Individual cur_sol;
     /* Implement algorithm */
-    void run(Individual &sol);
+    void run();
 
     void init();
 

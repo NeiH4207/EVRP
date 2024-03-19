@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         ants->free_SACO();
       } else if (algo == "GS"){
         initialize_GS();
-        gs_optimizer.run(gs_optimizer.best_solution);
+        gs_optimizer.run();
         save_solution(outputpath, algo, filename, trial);
         free_GS();
       } else if (algo == "HMAGS"){

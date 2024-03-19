@@ -11,7 +11,7 @@ void GreedySearch:: init(){
     best_solution.copy_order(sol);
 }
 
-void GreedySearch::run(Individual &cur_sol) {
+void GreedySearch::run() {
     Individual sol;
     sol.init("optimal");
     if(sol.is_valid_solution()) {
@@ -21,7 +21,6 @@ void GreedySearch::run(Individual &cur_sol) {
             for(int j = 0; j < best_sol->steps; j++){
                 best_sol->tour[j] = sol.solution[j];
             }
-            // cout << best_sol->tour_length << "\n";
         }
     }  else {
         cout << "Invalid solution\n";

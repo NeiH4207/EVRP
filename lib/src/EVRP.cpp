@@ -9,6 +9,7 @@
 #include<time.h>
 #include<limits.h>
 #include <sys/stat.h>
+#include <numeric>
 
 #include "EVRP.hpp"
 
@@ -36,44 +37,36 @@ double current_best;
 solution *best_sol;
 string algorithm;
 
-void compute_nearest_points() {
-    for(int i = 1; i <= NUM_OF_CUSTOMERS; i++) {
-        nearest[i].assign(NUM_OF_CUSTOMERS, 0);
-        for(int j = 0; j < NUM_OF_CUSTOMERS; j++) {
-            nearest[i][j] = j + 1;
+void compute_nearest_points()
+{
+    for (int customer_index = 1; customer_index <= NUM_OF_CUSTOMERS; customer_index++)
+    {
+        auto& nearest_customers = nearest[customer_index];
+        nearest_customers.resize(NUM_OF_CUSTOMERS);
+        std::iota(nearest_customers.begin(), nearest_customers.end(), 1);
+
+        std::sort(nearest_customers.begin(), nearest_customers.end(),
+            [&](int left, int right)
+            {
+                return get_distance(customer_index, left) < get_distance(customer_index, right);
+            });
+    }
+}
+
+
+double euclideanDistance(int from, int to) {
+    double dx = node_list[from].x - node_list[to].x;
+    double dy = node_list[from].y - node_list[to].y;
+    return sqrt(dx * dx + dy * dy);
+}
+
+void compute_distances() {
+    for (int i = 0; i < ACTUAL_PROBLEM_SIZE; ++i) {
+        for (int j = 0; j < ACTUAL_PROBLEM_SIZE; ++j) {
+            distances[i][j] = euclideanDistance(i, j);
         }
-
-        sort(nearest[i].begin(), nearest[i].end(), [&, i](int j, int k) {
-            return get_distance(i, j) < get_distance(i, k);
-        });
     }
 }
-
-
-/****************************************************************/
-/*Compute and return the euclidean distance of two objects      */
-/****************************************************************/
-double euclidean_distance(int i, int j) {
-  double xd,yd;
-  double r = 0.0;
-  xd = node_list[i].x - node_list[j].x;
-  yd = node_list[i].y - node_list[j].y;
-  r  = sqrt(xd*xd + yd*yd);
-  return r;
-}
-
-/****************************************************************/
-/*Compute the distance matrix of the problem instance           */
-/****************************************************************/
-void compute_distances(void) {
-int i, j;
-  for(i = 0; i < ACTUAL_PROBLEM_SIZE; i++){
-    for(j = 0; j < ACTUAL_PROBLEM_SIZE; j++){
-      distances[i][j] = euclidean_distance(i,j);
-    }
-  }
-}
-
 
 /****************************************************************/
 /*Generate and return a two-dimension array of type double      */
