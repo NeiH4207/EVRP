@@ -1,6 +1,6 @@
 #include<iostream>
 #include<string>
-#include "utils.hpp"         
+#include "utils.hpp"  
 
 using namespace std;
 
@@ -35,17 +35,17 @@ int main(int argc, char *argv[]) {
 
       } else if (algo == "GS"){
         initialize_GS();
-        gs_optimizer.run();
+        GS_optimizer.run();
         save_solution(outputpath, algo, filename, trial);
         free_GS();
 
-      } else if (algo == "HMAGS"){
-        initialize_HMAGS();
+      } else if (algo == "GSGA"){
+        initialize_GSGA();
         while(!termination_condition(1)){
-          run_HMAGS(); 
+          run_GSGA(); 
         }
         save_solution(outputpath, algo, filename, trial);
-        free_HMAGS();
+        free_GSGA();
 
       } else if (algo == "SA"){
         initialize_SA();

@@ -2,22 +2,22 @@
 
 using namespace std;
 
-HMAGS hmags;
-
-void HMAGS::init(){
+void GSGA::init(){
     for(int i = 0; i < NUM_OF_INDVS; i++) {
-        pop[i].init("clustering");
+        pop[i] = create_random_solution();
+        greedy_search(pop[i]);
+        
         if (pop[i].get_fitness() < best_sol->tour_length){
             best_sol->tour_length = pop[i].get_fitness();
             best_sol->steps = pop[i].get_steps();    
             for(int j = 0; j < best_sol->steps; j++){
-                best_sol->tour[j] = pop[i].solution[j];
+                best_sol->tour[j] = pop[i].full_path[j];
             }
         }
     }
 }
 
-void HMAGS::compute_rank(int n){
+void GSGA::compute_rank(int n){
     double sum = 0;
     double fit_min = INF;
     double fit_max = 0;
@@ -37,11 +37,11 @@ void HMAGS::compute_rank(int n){
     }
 }
 
-int HMAGS::choose_by_rank(double prob){
+int GSGA::choose_by_rank(double prob){
     return (int) (upper_bound(rank, rank + NUM_OF_INDVS, prob) - rank);
 }
 
-void HMAGS::Repopulation() {
+void GSGA::Repopulation() {
     compute_rank(NUM_OF_INDVS);
     for(int i = 0; i < 2 * NUM_OF_INDVS; i += 2) {
         // choose the two parents
@@ -62,13 +62,13 @@ void HMAGS::Repopulation() {
             best_sol->tour_length = pop[i].get_fitness();
             best_sol->steps = pop[i].get_steps();    
             for(int j = 0; j < best_sol->steps; j++){
-                best_sol->tour[j] = pop[i].solution[j];
+                best_sol->tour[j] = pop[i].full_path[j];
             }
         }
     }
 }
 
-void HMAGS::mutate(Individual &indv, string method, double Pr_mutate = 0.1) {
+void GSGA::mutate(Solution &indv, string method, double Pr_mutate = 0.1) {
 
     double mutate_prob = (double) rand() / (double) RAND_MAX;
     indv.reset_tour_index();
@@ -168,7 +168,7 @@ void HMAGS::mutate(Individual &indv, string method, double Pr_mutate = 0.1) {
     }
 }
 
-void HMAGS::distribute_crossover(Individual parent_1, Individual parent_2, int idx) {
+void GSGA::distribute_crossover(Solution parent_1, Solution parent_2, int idx) {
 
     int num = rand()%(NUM_OF_CUSTOMERS) + 1;// so ngau nhien tu 1 den size of customers
     int id1 = parent_1.tour_index[num];// customer 'num' of id1 tour in parent_1
@@ -176,8 +176,8 @@ void HMAGS::distribute_crossover(Individual parent_1, Individual parent_2, int i
     int have[NUM_OF_CUSTOMERS + 1];
     int alens[NUM_OF_CUSTOMERS + 1];
 
-    Individual child1;
-    Individual child2;
+    Solution child1;
+    Solution child2;
     child1.copy_order(parent_1);
     child2.copy_order(parent_2);
 
@@ -218,13 +218,11 @@ void HMAGS::distribute_crossover(Individual parent_1, Individual parent_2, int i
     mutate(child2, "hmm", 0.1);
     pop[idx].copy_order(child1);
     pop[idx + 1].copy_order(child2);
-    pop[idx].setup();
-    pop[idx + 1].setup();
 }
 
-void HMAGS::Selection() {
+void GSGA::Selection() {
 
-    sort(pop, pop + 3 * NUM_OF_INDVS, [](Individual x, Individual y) {
+    sort(pop, pop + 3 * NUM_OF_INDVS, [](Solution x, Solution y) {
             return x.get_fitness() < y.get_fitness();
     });
 
@@ -242,27 +240,30 @@ void HMAGS::Selection() {
     
 }
 
-void HMAGS::Evolution() {
+void GSGA::Evolution() {
     Repopulation();
     Selection();
 }
 
-void initialize_HMAGS() {
+
+GSGA GSGA_optimizer;
+
+void initialize_GSGA() {
     best_sol = new solution;
     best_sol->tour = new int[MAX_NODE];
     best_sol->id = 1;
     best_sol->steps = 0;
     best_sol->tour_length = INF;
     compute_nearest_points();
-    hmags.init();
+    GSGA_optimizer.init();
 }
 
-void free_HMAGS(){
+void free_GSGA(){
     delete[] best_sol->tour;
     delete best_sol;
 }
 
 /*implement your heuristic in this function*/
-void run_HMAGS() {
-    hmags.Evolution();
+void run_GSGA() {
+    GSGA_optimizer.Evolution();
 }

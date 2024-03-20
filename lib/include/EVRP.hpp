@@ -3,7 +3,7 @@
 #include <string>
 #define CHAR_LEN 100
 #define MAX_NODE 1500
-#define MAX_NUM_FINDING_SAFE 10
+#define MAX_NUM_FINDING_TRIALS 10
 
 const double INF = 2e15;
 #define TERMINATION 25000*ACTUAL_PROBLEM_SIZE  	//DO NOT CHANGE THE NUMBER

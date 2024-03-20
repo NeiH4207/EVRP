@@ -64,7 +64,7 @@ void SACO::init (int _r) {
 
 	for (int i=0; i<NUMBEROFANTS; i++) {
 		for (int j=0; j<ACTUAL_PROBLEM_SIZE; j++) {
-			Ants[i].solution[j] = 0;
+			Ants[i].full_path[j] = 0;
 		}
 	}
 
@@ -153,10 +153,10 @@ void SACO::printPHEROMONES () {
 // bool SACO::visited (int antk, int size,  int c) {
 // 	if (c == DEPOT or is_charging_station(c)) return false;
 // 	for (int l=0; l<size; l++) {
-// 		if (Ants[antk].solution[l] == -1) {
+// 		if (Ants[antk].full_path[l] == -1) {
 // 			break;
 // 		}
-// 		if (Ants[antk].solution[l] == c) {
+// 		if (Ants[antk].full_path[l] == c) {
 // 			return true;
 // 		}
 // 	}
@@ -195,7 +195,7 @@ int SACO::city (int count) {
 }
 
 int SACO::route (int antk) {
-	Ants[antk].solution[0] = 0;
+	Ants[antk].full_path[0] = 0;
 	static int gen_temp[MAX_NODE];
 	static int visited[MAX_NODE];
 	memset(visited, 0, sizeof(visited));
@@ -208,7 +208,7 @@ int SACO::route (int antk) {
 	int n_customer = 0;
 	// cout << "st\n";
 	while (n_customer < NUM_OF_CUSTOMERS){
-		from = Ants[antk].solution[cnt - 1];
+		from = Ants[antk].full_path[cnt - 1];
 		//  cout << "from: " << from << " cnt: " << cnt << "\n";
 		int count = 0;
 		for (to = 1; to <= NUM_OF_CUSTOMERS; to++) {
@@ -232,21 +232,21 @@ int SACO::route (int antk) {
 			energy_temp = BATTERY_CAPACITY;
 			capacity_temp = MAX_CAPACITY;
 			end_depot = cnt;
-			Ants[antk].solution[cnt++] = DEPOT;
+			Ants[antk].full_path[cnt++] = DEPOT;
 			int len = end_depot - start_depot + 1;
 			for (int i = 0; i < len; i++){
-				gen_temp[i] = Ants[antk].solution[start_depot + i];
+				gen_temp[i] = Ants[antk].full_path[start_depot + i];
 			}
 			local_search(gen_temp, end_depot - start_depot + 1);
 			int end_pos = start_depot;
-			Ants[antk].complete_subgen(Ants[antk].solution, gen_temp, 0, len - 1, end_pos);
-			Ants[antk].solution[end_pos + 1] = 0;
+			// Ants[antk].complete_subgen(Ants[antk].full_path, gen_temp, 0, len - 1, end_pos);
+			Ants[antk].full_path[end_pos + 1] = 0;
 			cnt = end_pos + 1;
 			start_depot = end_pos;
 			continue;
 		}
 		int next_city = city(count);
-		Ants[antk].solution[cnt++] = next_city;
+		Ants[antk].full_path[cnt++] = next_city;
 		visited[next_city] = 1;
 
 		capacity_temp -= get_customer_demand(next_city);
@@ -255,21 +255,21 @@ int SACO::route (int antk) {
 	}
 	// cout << "mid\n";
     int next_city = 0;
-    Ants[antk].solution[cnt++] = next_city;
+    Ants[antk].full_path[cnt++] = next_city;
 	end_depot = cnt - 1;
 	int len = end_depot - start_depot + 1;
 	for (int i = 0; i < len; i++){
-		gen_temp[i] = Ants[antk].solution[start_depot + i];
+		gen_temp[i] = Ants[antk].full_path[start_depot + i];
 	}
 	local_search(gen_temp, end_depot - start_depot + 1);
 	int end_pos = start_depot;
-	Ants[antk].complete_subgen(Ants[antk].solution, gen_temp, 0, len - 1, end_pos);
-	Ants[antk].solution[end_pos++] = 0;
+	// Ants[antk].complete_subgen(Ants[antk].full_path, gen_temp, 0, len - 1, end_pos);
+	Ants[antk].full_path[end_pos++] = 0;
 	cnt = end_pos;
     Ants[antk].set_steps(cnt);
 	// cout << "end\n";
-    if(check_solution(Ants[antk].solution, cnt)) {
-        Ants[antk].set_fitness(fitness_evaluation(Ants[antk].solution, cnt, true));
+    if(check_solution(Ants[antk].full_path, cnt)) {
+        Ants[antk].set_fitness(fitness_evaluation(Ants[antk].full_path, cnt, true));
 		// Ants[antk].show();
 		return true;
     } else {
@@ -279,15 +279,15 @@ int SACO::route (int antk) {
 
 
 void SACO::updatePHEROMONES () {
-    sort(Ants, Ants + NUMBEROFANTS, [](Individual x, Individual y){
+    sort(Ants, Ants + NUMBEROFANTS, [](Solution x, Solution y){
         return x.get_fitness() < y.get_fitness();
     });
     
 	for (int k=0; k<NUMBEROFANTS - 1; k++) {
 		double rlength = Ants[k].get_fitness();
 		for (int r=0; r< Ants[k].get_steps()-1; r++) {
-			int cityi = Ants[k].solution[r];
-			int cityj = Ants[k].solution[r+1];
+			int cityi = Ants[k].full_path[r];
+			int cityj = Ants[k].full_path[r+1];
 			DELTAPHEROMONES[cityi][cityj] += (NUMBEROFANTS - k) / rlength;
 			DELTAPHEROMONES[cityj][cityi] += (NUMBEROFANTS - k) / rlength;
 		}
@@ -341,7 +341,7 @@ void SACO::optimize () {
 			// cout << (is_fessible?"Fessible":"Not Fessible") << "\n";
         } while (not is_fessible);
 		// cout << "Done\n";
-		// if (not check_solution(Ants[k].solution, Ants[k].get_steps())){
+		// if (not check_solution(Ants[k].full_path, Ants[k].get_steps())){
 		// 	cout << "Warning!\n";
 		// }
 		int st_pos = 0;	
@@ -349,14 +349,14 @@ void SACO::optimize () {
 		Ants[k].set_num_of_tours(0);
 		int n_tours = 0;
 		for (int i = 1; i < Ants[k].get_steps(); i++){
-			if (is_charging_station(Ants[k].solution[i])){
-				if (Ants[k].solution[i] == DEPOT){
+			if (is_charging_station(Ants[k].full_path[i])){
+				if (Ants[k].full_path[i] == DEPOT){
 					Ants[k].tours[n_tours] = {st_pos, cnt - 1};
 					st_pos = cnt;
 					n_tours++;
 				}
 			} else{
-				Ants[k].order[cnt++] = Ants[k].solution[i];
+				Ants[k].order[cnt++] = Ants[k].full_path[i];
 			}
 		}	
 		Ants[k].set_num_of_tours(n_tours);
@@ -365,7 +365,7 @@ void SACO::optimize () {
             best_sol->tour_length = Ants[k].get_fitness();
             best_sol->steps = Ants[k].get_steps();    
             for(int j = 0; j < best_sol->steps; j++){
-                best_sol->tour[j] = Ants[k].solution[j];
+                best_sol->tour[j] = Ants[k].full_path[j];
             }
     		// cout << "Best iter: " << best_sol->tour_length << "\n";
 			t_cnt = 0;
