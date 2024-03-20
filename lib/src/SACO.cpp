@@ -239,7 +239,7 @@ int SACO::route (int antk) {
 			}
 			local_search(gen_temp, end_depot - start_depot + 1);
 			int end_pos = start_depot;
-			Ants[antk].complete_subgen(Ants[antk].solution, gen_temp, 0, len - 1, end_pos);
+			// Ants[antk].complete_subgen(Ants[antk].solution, gen_temp, 0, len - 1, end_pos);
 			Ants[antk].solution[end_pos + 1] = 0;
 			cnt = end_pos + 1;
 			start_depot = end_pos;
@@ -263,7 +263,7 @@ int SACO::route (int antk) {
 	}
 	local_search(gen_temp, end_depot - start_depot + 1);
 	int end_pos = start_depot;
-	Ants[antk].complete_subgen(Ants[antk].solution, gen_temp, 0, len - 1, end_pos);
+	// Ants[antk].complete_subgen(Ants[antk].solution, gen_temp, 0, len - 1, end_pos);
 	Ants[antk].solution[end_pos++] = 0;
 	cnt = end_pos;
     Ants[antk].set_steps(cnt);
@@ -279,7 +279,7 @@ int SACO::route (int antk) {
 
 
 void SACO::updatePHEROMONES () {
-    sort(Ants, Ants + NUMBEROFANTS, [](Individual x, Individual y){
+    sort(Ants, Ants + NUMBEROFANTS, [](Solution x, Solution y){
         return x.get_fitness() < y.get_fitness();
     });
     

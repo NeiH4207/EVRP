@@ -6,6 +6,8 @@ enable_testing()
 
 add_subdirectory(lib)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 # add_executable(evrp EVRP.cpp stats.cpp HMAGS.cpp GreedySearch.cpp individual.cpp utils.cpp main.cpp)
 add_executable(evrp main.cpp)
 target_link_libraries(evrp PRIVATE evrp_lib_builder)

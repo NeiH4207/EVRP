@@ -3,7 +3,7 @@
 #include<iostream>
 #include<limits.h>
 #include<stdlib.h>
-// #include "HMAGS.hpp"
+// #include "GSGA.hpp"
 #include "Algorithms.hpp"
 #include "stats.hpp"
 

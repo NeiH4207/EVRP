@@ -1,7 +1,8 @@
 #include "Randoms.cpp"
-#include "individual.hpp"
+#include "Solution.hpp"
 #include "Clock.h"
 #include <algorithm>
+#include <string>
 
 const int NUMBEROFANTS = 6;
 const int NUM_OF_INDVS = 200;
@@ -9,12 +10,38 @@ const int NUM_OF_INDVS = 200;
 class GreedySearch {
 public:
 
-    Individual best_solution;
-    Individual cur_sol;
+    Solution best_solution;
+    Solution cur_sol;
     /* Implement algorithm */
     void run();
 
-    void init();
+    Solution create_random_solution();
+
+    void greedy_search(Solution &sol);
+
+    void clustering(Solution &sol);
+
+    /* Reoptimize */
+    void local_search(Solution &sol);
+
+    /* Insert energy station by optimal way */
+    void insert_charging_stations(Solution &sol);
+
+    /* balanced method */
+    void balancing_capacity(Solution &sol);
+
+    /* implement algo */
+    void setting_path();
+    
+    /* optimize_station - a sub steps in complete_gen function */
+    void optimize_station(int *tmp_path, int length, std::string direction);
+
+    /* find a nearest energy station by Dijkstra's alg from left to right */
+    int nearest_station(int from, int to, double energy);
+
+    /* find a nearest energy station by Dijkstra's alg from right to left */
+    int nearest_station_back(int from, int to, double energy);
+
 
 };
 
@@ -23,7 +50,7 @@ public:
 	SACO (double alpha, double beta, double q, double ro, double taumax, int initCity);
 	virtual ~SACO ();
 	
-	Individual Ants[NUMBEROFANTS];
+	Solution Ants[NUMBEROFANTS];
 
 	void init (int _r);
 	
@@ -63,12 +90,16 @@ private:
 class Simulated_Annealing{
 public:
 
-    Individual best_solution;
-    Individual cur_sol;
+    Solution best_solution;
+    Solution cur_sol;
     /* Implement algorithm */
-    void run(Individual &sol);
+    void run(Solution &sol);
 
-    void init(Individual ant);
+    void init(Solution ant);
+
+    void greedy_1(Solution &sol);
+
+    void greedy_2(Solution &sol);
 
 private:
     /* */
@@ -86,51 +117,50 @@ private:
 
 };
 
-struct HMAGS {
-  
-    /* The population */
-    Individual pop[3 * NUM_OF_INDVS];
+struct GSGA : public GreedySearch {
+    public:
+        /* The population */
+        Solution pop[3 * NUM_OF_INDVS];
 
-    /* Ranking for each indv */
-    double rank[3 * NUM_OF_INDVS];
+        /* Ranking for each indv */
+        double rank[3 * NUM_OF_INDVS];
 
-    /* initial function generate new population */
-    void init();
+        /* initial function generate new population */
+        void init();
 
-    /* compute rank for pop */
-    void compute_rank(int n);
+        /* compute rank for pop */
+        void compute_rank(int n);
 
-    /* choose next indv with probability(prob) 
-       using binary search
-    */
-    int choose_by_rank(double prob);
-  
-    /* repopulation */
-    void Repopulation();
+        /* choose next indv with probability(prob) 
+        using binary search
+        */
+        int choose_by_rank(double prob);
+    
+        /* repopulation */
+        void Repopulation();
 
-    void mutate(Individual &indv, std::string method, double Pr_mutate);
+        void mutate(Solution &indv, std::string method, double Pr_mutate);
 
-    /* crossover function, return two new indvs */
-    void distribute_crossover(Individual parent_1, 
-                              Individual parent_2, 
-                              int idx);
-  
-    /* weheel selection method, using by ranking */
-    void Selection();
-  
-    /* evolution */
-    void Evolution();
-
+        /* crossover function, return two new indvs */
+        void distribute_crossover(Solution parent_1, 
+                                Solution parent_2, 
+                                int idx);
+    
+        /* weheel selection method, using by ranking */
+        void Selection();
+    
+        /* evolution */
+        void Evolution();
 } ;
 
-extern HMAGS hmags;
+extern GSGA GSGA_Optimizer;
 
-extern void initialize_HMAGS();
+extern void initialize_GSGA();
 
-extern void free_HMAGS();
+extern void free_GSGA();
 
 /*implement your heuristic in this function*/
-extern void run_HMAGS();
+extern void run_GSGA();
 
 
 extern Simulated_Annealing SA_optimizer;
@@ -141,6 +171,6 @@ extern void free_SA();
 
 // Other algorithms
 
-extern GreedySearch gs_optimizer;   
+extern GreedySearch GS_optimizer;   
 extern void initialize_GS();
 extern void free_GS();

@@ -7,10 +7,10 @@ add_library(
     src/EVRP.cpp 
     include/stats.hpp
     src/stats.cpp 
-    include/individual.hpp
-    src/individual.cpp
+    include/Solution.hpp
+    src/Solution.cpp
     include/Algorithms.hpp
-    src/HMAGS.cpp 
+    src/GSGA.cpp 
     src/SACO.cpp 
     src/GreedySearch.cpp 
     src/SA.cpp 

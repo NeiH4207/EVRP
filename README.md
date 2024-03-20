@@ -18,10 +18,10 @@ Implementation of the electric vehicle routing problem.
 * stats.cpp stats.hpp
 Implementation to store the best solution for the 20 RUNS. 
 
-* HMAGS.cpp, SA.cpp, GreedySearch.cpp, SACO.cpp
+* GSGA.cpp, SA.cpp, GreedySearch.cpp, SACO.cpp
 Metaheuristic Solution here.
 
-* individual.cpp
+* Solution.cpp
 algorithm, methods
 
 * main.cpp 
@@ -46,7 +46,7 @@ $ ./evrp <algorithm> <benchmark_file> <output_file>
 
 example:
 ```
-$ ./evrp HMAGS benchmark/E-n23-k3.evrp output_files/
+$ ./evrp GSGA benchmark/E-n23-k3.evrp output_files/
 ```
 
 To make a solution in graph using python script:
@@ -55,16 +55,16 @@ $ python3 evrpgraph.py -i <solution-file>
 ```
 
 ```
-$ python3 evrpgraph.py -i output_files/1/solution_HMAGS_E-n23-k3.evrp.txt
+$ python3 evrpgraph.py -i output_files/1/solution_GSGA_E-n23-k3.evrp.txt
 ```
 
-*** Example of solution in graph E-n23-k3.evrp using HMAGS algorithm
-![Solution](./tmp-outputs/1/solution_HMAGS_E-n101-k8evrp.png)
+*** Example of solution in graph E-n23-k3.evrp using GSGA algorithm
+![Solution](./tmp-outputs/1/solution_GSGA_E-n101-k8evrp.png)
 
 
 The algorithm archived top 3 in competition [CEC-12 (2019)](https://mavrovouniotis.github.io/EVRPcompetition2020/)
 
-|     instances    | (Team1) VNS |           |           |        | (Team2) SA |           |           |        | (Team3) HMAGS |           |           |         |
+|     instances    | (Team1) VNS |           |           |        | (Team2) SA |           |           |        | (Team3) GSGA |           |           |         |
 |:----------------:|:-----------:|:---------:|:---------:|:------:|:----------:|:---------:|:---------:|:------:|:-------------:|:---------:|:---------:|:-------:|
 |                  |     min     |    max    |    mean   |  stdev |     min    |    max    |    mean   |  stdev |      min      |    max    |    mean   |  stdev  |
 |   E-n22-k4.evrp  | 384.67      | 384.67    | 384.67    | 0.0    | 384.67     | 384.67    | 384.67    | 0.00   | 384.67        | 384.67    | 384.67    | 0.0     |

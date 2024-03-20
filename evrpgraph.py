@@ -5,7 +5,7 @@ def argparser():
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, help='input file', 
-                        default='output_files/1/solution_HMAGS_E-n23-k3.evrp.txt')
+                        default='output_files/1/solution_GSGA_E-n23-k3.evrp.txt')
     parser.add_argument('--output', type=str, help='output file', default=None)
     args = parser.parse_args()
     return args

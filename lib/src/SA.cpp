@@ -6,14 +6,13 @@ using namespace std;
 
 Simulated_Annealing SA_optimizer;
 
-void Simulated_Annealing:: init(Individual ant){
+void Simulated_Annealing:: init(Solution ant){
     cur_sol.copy_order(ant);
-    cur_sol.setup();
 }
 
-void Simulated_Annealing::run(Individual &cur_sol) {
+void Simulated_Annealing::run(Solution &cur_sol) {
     Clock timer;
-    Individual new_solution;
+    Solution new_solution;
     double t_current = this->t_current;
     double t_cool = this->t_cool;
     double t_greedy = this->t_greedy;
@@ -43,11 +42,11 @@ void Simulated_Annealing::run(Individual &cur_sol) {
             
             double rand_t = (double) rand() / (double) RAND_MAX;
             if(rand_t <= 0.5){
-                new_solution.greedy_1();
+                greedy_1(cur_sol);
             } else {
-                new_solution.greedy_2();
+                greedy_2(cur_sol);
             }
-            new_solution.setup();
+            
             improve = cur_sol.get_fitness() - new_solution.get_fitness();
             G++;
 
@@ -106,6 +105,99 @@ void initialize_SA() {
     best_sol->tour_length = INF;
     compute_nearest_points();
 }
+
+
+
+void Simulated_Annealing::greedy_1(Solution &cur_sol){
+    cur_sol.reset_tour_index();
+    int customer = rand() % (NUM_OF_CUSTOMERS) + 1;
+    static int near_customer;
+    near_customer = -1;
+
+    for(int x: nearest[customer]){
+        if ((rand() % INT_MAX) / (1.0 * INT_MAX) < 0.1) continue;
+        if(cur_sol.tour_index[x] != cur_sol.tour_index[customer]){
+            near_customer = x;
+            break;
+        }
+    }
+
+    if(near_customer != -1){
+
+        for(int i = cur_sol.tours[cur_sol.tour_index[customer]].left; i <= cur_sol.tours[cur_sol.tour_index[customer]].right; i++){
+            if(cur_sol.order[i] == customer){
+                cur_sol.order[i] = near_customer;
+                break;
+            }
+        }
+
+        for(int i = cur_sol.tours[cur_sol.tour_index[near_customer]].left; i <= cur_sol.tours[cur_sol.tour_index[near_customer]].right; i++){
+            if(cur_sol.order[i] == near_customer){
+                cur_sol.order[i] = customer;
+                break;
+            }
+        }
+        swap(cur_sol.tour_index[customer], cur_sol.tour_index[near_customer]);
+    }
+}
+void Simulated_Annealing::greedy_2(Solution &Solution) {
+    Solution.reset_tour_index();
+    int customer_index = rand() % NUM_OF_CUSTOMERS;
+    int customer = Solution.order[customer_index];
+    int tour_index = Solution.tour_index[customer];
+    int tour_size = Solution.tours[tour_index].right - Solution.tours[tour_index].left + 1;
+    int capacity = Solution.get_capacity_of_tour(tour_index);
+
+    int neighbor = -1;
+    for (int x : nearest[customer]) {
+        if (Solution.tour_index[x] != tour_index && capacity + get_customer_demand(x) <= MAX_CAPACITY && tour_size > 2) {
+            neighbor = x;
+            break;
+        }
+    }
+
+    if (neighbor != -1) {
+        int neighbor_tour_index = Solution.tour_index[neighbor];
+        int neighbor_index = -1;
+        for (int i = Solution.tours[neighbor_tour_index].left;
+                i <= Solution.tours[neighbor_tour_index].right; i++) {
+            if (Solution.order[i] == neighbor) {
+                neighbor_index = i;
+                break;
+            }
+        }
+
+        if (tour_index < neighbor_tour_index) {
+            swap(Solution.order[neighbor_index], Solution.order[Solution.tours[neighbor_tour_index].left]);
+            Solution.tours[neighbor_tour_index].left++;
+            for (int i = neighbor_tour_index - 1; i > tour_index; i--) {
+                for (int j = Solution.tours[i].right; j >= Solution.tours[i].left; j--) {
+                    Solution.order[j + 1] = Solution.order[j];
+                }
+                Solution.tours[i].left++;
+                Solution.tours[i].right++;
+            }
+            Solution.tours[tour_index].right++;
+            Solution.order[Solution.tours[tour_index].right] = neighbor;
+            Solution.tour_index[neighbor] = tour_index;
+        } else {
+            swap(Solution.order[neighbor_index], Solution.order[Solution.tours[neighbor_tour_index].right]);
+            Solution.tours[neighbor_tour_index].right--;
+            for (int i = neighbor_tour_index + 1; i < tour_index; i++) {
+                for (int j = Solution.tours[i].left; j <= Solution.tours[i].right; j++) {
+                    Solution.order[j - 1] = Solution.order[j];
+                }
+                Solution.tours[i].left--;
+                Solution.tours[i].right--;
+            }
+            Solution.tours[tour_index].left--;
+            Solution.order[Solution.tours[tour_index].left] = neighbor;
+            Solution.tour_index[neighbor] = tour_index;
+        }
+    }
+}
+
+
 
 void free_SA(){
     delete[] best_sol->tour;
