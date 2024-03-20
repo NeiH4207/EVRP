@@ -398,7 +398,7 @@ void GreedySearch::insert_charging_stations(Solution &sol){
         int from, to;
         int num_finding_safe = 0;
 
-        for(int j = 0; j < subtour_length; j++){
+        for(int j = 0; j < subtour_length - 1; j++){
             from = customer_order[j];
             to = customer_order[j + 1];
             
@@ -449,7 +449,7 @@ void GreedySearch::insert_charging_stations(Solution &sol){
         }
 
         tmp_path[iter] = 0;
-        optimize_station(tmp_path, iter, "backward");
+        optimize_station(tmp_path, iter, "forward");
 
         for(int j = 0; j <= iter; j++){
             sol.full_path[full_length++] = tmp_path[j];
