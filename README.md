@@ -2,6 +2,8 @@
 
 *** Paper link [here](https://link.springer.com/article/10.1007/s10489-022-03555-8) ***
 
+For the Python version, please see the repository at: [here](https://github.com/NeiH4207/EVRP-Python)
+
 ### This repository contains algorithms to solve the EVRP (Electric Vehicle Routing Problem) in C++ ###
 
 <a name="algorithms"></a>
